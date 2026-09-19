@@ -1,8 +1,7 @@
 import type { LanguageItem } from "@/components/language-combobox-options"
 import type { LangCodeISO6393 } from "@/definitions"
 import { Combobox as ComboboxPrimitive } from "@base-ui/react"
-import { Icon } from "@iconify/react"
-import { IconChevronDown } from "@tabler/icons-react"
+import { IconArrowRight, IconChevronDown } from "@tabler/icons-react"
 import { useAtom, useAtomValue } from "jotai"
 import { useMemo } from "react"
 import { i18n } from "#imports"
@@ -58,7 +57,7 @@ function LanguageComboboxTrigger({
         <span className="truncate w-full text-left">{label}</span>
         <span className="text-sm text-neutral-500">{subtitle}</span>
       </div>
-      <IconChevronDown className="size-4 text-muted-foreground" />
+      <IconChevronDown className="size-4 text-muted-foreground" aria-hidden="true" />
     </ComboboxPrimitive.Trigger>
   )
 }
@@ -141,7 +140,7 @@ export default function LanguageOptionsSelector() {
           <ComboboxEmpty>{i18n.t("languageCombobox.noLanguagesFound")}</ComboboxEmpty>
         </ComboboxContent>
       </Combobox>
-      <Icon icon="tabler:arrow-right" className="h-4 w-4 text-neutral-500" />
+      <IconArrowRight className="h-4 w-4 text-neutral-500" aria-hidden="true" />
       <Combobox
         value={currentTargetItem}
         onValueChange={handleTargetLangChange}

@@ -1,4 +1,4 @@
-import { Icon } from "@iconify/react"
+import { IconAdjustmentsHorizontal, IconApi, IconLanguage, IconSettings } from "@tabler/icons-react"
 import { Link, useLocation } from "react-router"
 import { i18n } from "#imports"
 import {
@@ -20,28 +20,28 @@ export function SettingsNav() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton render={<Link to="/" />} isActive={pathname === "/"}>
-              <Icon icon="tabler:adjustments-horizontal" />
+              <IconAdjustmentsHorizontal aria-hidden="true" />
               <span>{i18n.t("options.general.title")}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
 
           <SidebarMenuItem>
             <SidebarMenuButton render={<Link to="/api-providers" />} isActive={pathname === "/api-providers"}>
-              <Icon icon="tabler:api" />
+              <IconApi aria-hidden="true" />
               <span>{i18n.t("options.apiProviders.title")}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
 
           <SidebarMenuItem>
             <SidebarMenuButton render={<Link to="/translation" />} isActive={pathname === "/translation"}>
-              <Icon icon="ri:translate" />
+              <IconLanguage aria-hidden="true" />
               <span>{i18n.t("options.translation.title")}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
 
           <SidebarMenuItem>
             <SidebarMenuButton render={<Link to="/config" />} isActive={pathname === "/config"}>
-              <Icon icon="tabler:settings" />
+              <IconSettings aria-hidden="true" />
               <span>{i18n.t("options.config.title")}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>

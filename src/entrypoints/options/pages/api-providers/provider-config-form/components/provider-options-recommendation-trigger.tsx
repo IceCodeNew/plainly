@@ -1,5 +1,5 @@
 import type { JSONValue } from "ai"
-import { Icon } from "@iconify/react"
+import { IconSparkles } from "@tabler/icons-react"
 import { dequal } from "dequal"
 import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react"
 import { i18n } from "#imports"
@@ -137,7 +137,7 @@ export function ProviderOptionsRecommendationTrigger({
           />
         )}
       >
-        <Icon icon="tabler:sparkles" className="size-3.5" />
+        <IconSparkles className="size-3.5" aria-hidden="true" />
       </PopoverTrigger>
       <PopoverContent align="end" className="w-80 gap-3">
         <PopoverHeader>

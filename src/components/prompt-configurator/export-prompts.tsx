@@ -1,4 +1,4 @@
-import { Icon } from "@iconify/react"
+import { IconCheck } from "@tabler/icons-react"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import { i18n } from "#imports"
 import { Button } from "@/components/ui/base-ui/button"
@@ -29,7 +29,7 @@ export function ExportPrompts() {
       }}
       disabled={!selectedPrompts.length}
     >
-      <Icon icon="tabler:check" className="size-4" />
+      <IconCheck className="size-4" aria-hidden="true" />
       {i18n.t("options.translation.personalizedPrompts.exportPrompt.exportSelected")}
     </Button>
   )

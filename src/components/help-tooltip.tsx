@@ -1,5 +1,5 @@
 import type { ReactNode } from "react"
-import { Icon } from "@iconify/react"
+import { IconHelp } from "@tabler/icons-react"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/base-ui/tooltip"
 import { cn } from "@/utils/styles/utils"
 
@@ -7,7 +7,7 @@ export function HelpTooltip({ children, contentClassName }: { children: ReactNod
   return (
     <Tooltip>
       <TooltipTrigger render={<span className="inline-flex items-center" />}>
-        <Icon icon="tabler:help" className="size-3 text-muted-foreground cursor-help" />
+        <IconHelp className="size-3 text-muted-foreground cursor-help" aria-hidden="true" />
       </TooltipTrigger>
       <TooltipContent className={cn("max-w-64", contentClassName)}>
         <p>{children}</p>

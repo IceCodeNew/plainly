@@ -1,6 +1,6 @@
 import type { LLMProviderConfig } from "@/types/config/provider"
 import { Combobox as ComboboxPrimitive } from "@base-ui/react"
-import { Icon } from "@iconify/react"
+import { IconAlertCircle, IconList, IconListSearch } from "@tabler/icons-react"
 import { useMutation } from "@tanstack/react-query"
 import { z } from "zod"
 import { i18n } from "#imports"
@@ -97,7 +97,9 @@ function ModelSuggestions({
       >
         {mutation.isPending
           ? <LoadingDots className="scale-75" />
-          : <Icon icon={mutation.isError ? "tabler:alert-circle" : "tabler:list-search"} className="size-3.5" />}
+          : mutation.isError
+            ? <IconAlertCircle className="size-3.5" aria-hidden="true" />
+            : <IconListSearch className="size-3.5" aria-hidden="true" />}
         {mutation.isError
           ? i18n.t("options.apiProviders.form.models.clickToRetry")
           : i18n.t("options.apiProviders.form.models.fetchModels")}
@@ -114,7 +116,7 @@ function ModelSuggestions({
               }}
             >
               <ComboboxPrimitive.Trigger render={<Button type="button" variant="outline" size="xs" />}>
-                <Icon icon="tabler:list" />
+                <IconList aria-hidden="true" />
                 {i18n.t("options.apiProviders.form.models.selectModel")}
               </ComboboxPrimitive.Trigger>
               <ComboboxContent align="end" className="w-64">

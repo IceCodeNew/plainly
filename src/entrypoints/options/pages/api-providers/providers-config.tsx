@@ -1,5 +1,5 @@
 import type { APIProviderConfig } from "@/types/config/provider"
-import { Icon } from "@iconify/react"
+import { IconPlus } from "@tabler/icons-react"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
@@ -96,7 +96,7 @@ function ProviderCardList() {
           )}
         >
           <div className="flex items-center justify-center gap-2 w-full">
-            <Icon icon="tabler:plus" className="size-4" />
+            <IconPlus className="size-4" aria-hidden="true" />
             <span className="text-sm">{i18n.t("options.apiProviders.addProvider")}</span>
           </div>
         </DialogTrigger>
