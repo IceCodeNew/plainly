@@ -4,7 +4,9 @@
     "incremental": true,
     "tsBuildInfoFile": "./.wxt/tsconfig.typecheck.tsbuildinfo",
     "jsx": "react-jsx",
-    "allowImportingTsExtensions": true
+    "allowImportingTsExtensions": true,
+    "noImplicitOverride": false,
+    "noUncheckedIndexedAccess": false
   },
   "exclude": ["repos"]
 }

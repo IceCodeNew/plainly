@@ -1,13 +1,14 @@
 import { describe, expect, it } from "vitest"
-import { DEFAULT_CONFIG } from "@/utils/constants/config"
 import { mergeWithArrayOverwrite } from "../config"
 
 describe("mergeWithArrayOverwrite", () => {
-  it("should overwrite arrays and merge objects in complex config scenarios", () => {
+  it("user updates preferences: Given nested settings, When a patch replaces prompts, Then arrays are replaced and untouched settings are preserved", () => {
+    // Given
     const config = {
-      language: DEFAULT_CONFIG.language,
+      language: { sourceCode: "auto", targetCode: "eng" },
       translate: {
-        ...DEFAULT_CONFIG.translate,
+        mode: "bilingual",
+        page: { preload: { margin: 500, threshold: 0.5 }, range: "main" },
         customPromptsConfig: {
           promptId: null,
           patterns: [{ id: "old", name: "Old", systemPrompt: "", prompt: "old" }],
@@ -32,16 +33,20 @@ describe("mergeWithArrayOverwrite", () => {
       },
     }
 
+    // When
     const result = mergeWithArrayOverwrite(config, patch)
 
-    // Arrays should be completely replaced
+    // Then
     expect(result.translate.customPromptsConfig.patterns).toEqual([{ id: "new", name: "New", systemPrompt: "", prompt: "new" }])
-
+    expect(result.language).toEqual({ sourceCode: "auto", targetCode: "jpn" })
+    expect(result.translate.page).toEqual({ preload: { margin: 1000, threshold: 0.25 }, range: "main" })
     expect(result.translate.mode).toBe("replace")
 
     // Ensure immutability
     expect(result).not.toBe(config)
     expect(result.translate.customPromptsConfig.patterns).not.toBe(config.translate.customPromptsConfig.patterns)
+    expect(config.translate.customPromptsConfig.patterns).toEqual([{ id: "old", name: "Old", systemPrompt: "", prompt: "old" }])
+    expect(config.translate.page.preload).toEqual({ margin: 500, threshold: 0.5 })
   })
 
   it("should handle edge cases and type conversions", () => {
