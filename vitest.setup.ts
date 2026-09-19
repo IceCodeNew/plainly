@@ -60,8 +60,8 @@ vi.mock("#i18n", () => ({
 
 // Mock the fakeBrowser's i18n.getMessage method which is not implemented in fake-browser
 // This is used when WxtVitest plugin replaces browser imports with fake-browser
-vi.mock("wxt/testing", async () => {
-  const actual = await vi.importActual<any>("wxt/testing")
+vi.mock("wxt/testing/fake-browser", async () => {
+  const actual = await vi.importActual<any>("wxt/testing/fake-browser")
   return {
     ...actual,
     fakeBrowser: {
