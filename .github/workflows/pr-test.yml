@@ -1,13 +1,25 @@
 name: PR - Test & Build
 
 on:
+  push:
+    branches:
+      - master
+      - "renovate/**"
   pull_request:
     branches:
       - master
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test-and-build:
     name: Test & Build
+    if: >-
+      github.event_name == 'push' ||
+      github.event.pull_request.head.repo.full_name != github.repository ||
+      !startsWith(github.head_ref, 'renovate/')
     runs-on: ubuntu-latest
     env:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -24,10 +36,25 @@ jobs:
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: "24"
-          cache: pnpm
+
+      - name: Locate pnpm cache
+        id: pnpm-cache
+        run: |
+          echo "store=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+          echo "version=$(pnpm --version)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache pnpm packages and metadata
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
+        with:
+          path: |
+            ${{ steps.pnpm-cache.outputs.store }}
+            ~/.cache/pnpm
+          key: pnpm-${{ runner.os }}-${{ runner.arch }}-${{ steps.pnpm-cache.outputs.version }}-${{ hashFiles('.npmrc', 'pnpm-workspace.yaml') }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-${{ runner.arch }}-${{ steps.pnpm-cache.outputs.version }}-${{ hashFiles('.npmrc', 'pnpm-workspace.yaml') }}-
 
       - name: Install Dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --prefer-offline --network-concurrency=8
         shell: bash
 
       - name: Check for eruda imports
