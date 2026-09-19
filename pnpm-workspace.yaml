@@ -1,5 +1,12 @@
 shellEmulator: true
 
+# Keep dependency scripts disabled; native tools use their platform packages.
+allowBuilds:
+  esbuild: false
+  msw: false
+  nx: false
+  spawn-sync: false
+
 trustPolicy: no-downgrade
 
 trustPolicyExclude:
