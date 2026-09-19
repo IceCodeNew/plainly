@@ -351,7 +351,8 @@ it("user applies recommendations to a valid form: Given an unchanged legacy mode
 
   // Then
   await browser("wait", "--text", "DeepSeek")
-  await clickButton("View recommended provider options")
+  await browser("focus", "button[aria-label='View recommended provider options']")
+  await browser("press", "Enter")
   await browser("wait", "--text", "Applied")
   assert.match((await browser("get", "text", "[role=dialog]")).text, /minimal/)
 })
