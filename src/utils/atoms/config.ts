@@ -76,7 +76,7 @@ export const writeConfigAtom = atom(
         }
       }
       catch (error) {
-        console.error("Failed to set config to storage:", nextToPersist, error)
+        console.error("Failed to set config to storage:", error)
 
         // Roll back to storage value on error, but only if we're still the latest write.
         if (currentWriteVersion === writeVersion) {
@@ -103,22 +103,24 @@ export const writeConfigAtom = atom(
  * 3. Tab reactivation: Reload when tab becomes visible (inactive tabs may miss watch events)
  */
 configAtom.onMount = (setAtom: (newValue: Config) => void) => {
-  // Flag to avoid race condition: if watch fires before initial get() resolves,
-  // don't overwrite the fresher watch value with the stale get() result.
-  let didReceiveStorageUpdate = false
+  let mounted = true
+  let syncVersion = 0
+  const syncFromStorage = () => {
+    const currentSyncVersion = ++syncVersion
+    const pendingWrites = writeQueue
+    const currentWriteVersion = writeVersion
+    // A watch event can echo an older local write or originate in another tab.
+    // Read storage after queued writes instead of applying the event's snapshot.
+    void pendingWrites.then(async () => {
+      const value = await storageAdapter.get<Config>(CONFIG_STORAGE_KEY, DEFAULT_CONFIG, configSchema)
+      if (mounted && currentSyncVersion === syncVersion && currentWriteVersion === writeVersion) {
+        setAtom(value)
+      }
+    })
+  }
 
-  // Initial load from storage
-  void storageAdapter.get<Config>(CONFIG_STORAGE_KEY, DEFAULT_CONFIG, configSchema).then((value) => {
-    if (!didReceiveStorageUpdate) {
-      setAtom(value)
-    }
-  })
-
-  // Watch for changes from other extension contexts (popup, options page, other tabs)
-  const unwatch = storageAdapter.watch<Config>(CONFIG_STORAGE_KEY, (value) => {
-    didReceiveStorageUpdate = true
-    setAtom(value)
-  })
+  syncFromStorage()
+  const unwatch = storageAdapter.watch<Config>(CONFIG_STORAGE_KEY, syncFromStorage)
 
   // Handle tab reactivation - inactive tabs may miss storage watch events,
   // so we reload from storage when the tab becomes visible again.
@@ -126,12 +128,13 @@ configAtom.onMount = (setAtom: (newValue: Config) => void) => {
   const handleVisibilityChange = () => {
     if (document.visibilityState === "visible") {
       logger.info("configAtom onMount handleVisibilityChange when: ", new Date())
-      void storageAdapter.get<Config>(CONFIG_STORAGE_KEY, DEFAULT_CONFIG, configSchema).then(setAtom)
+      syncFromStorage()
     }
   }
   document.addEventListener("visibilitychange", handleVisibilityChange)
 
   return () => {
+    mounted = false
     unwatch()
     document.removeEventListener("visibilitychange", handleVisibilityChange)
   }

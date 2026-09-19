@@ -1,11 +1,11 @@
-import type { AllProviderTypes, APIProviderTypes, LLMProviderModels, ProviderConfig, ProvidersConfig } from "@/types/config/provider"
+import type { AllProviderTypes, APIProviderTypes, LLMProviderConfig, LLMProviderTypes, ProviderConfig, ProvidersConfig } from "@/types/config/provider"
 import type { Theme } from "@/types/config/theme"
 import customProviderLogo from "@/assets/providers/custom-provider.svg?url&no-inline"
 import { API_PROVIDER_TYPES, CUSTOM_LLM_PROVIDER_TYPES, NON_CUSTOM_LLM_PROVIDER_TYPES, TRANSLATE_PROVIDER_TYPES } from "@/types/config/provider"
 import { pick } from "@/types/utils"
 import { getLobeIconsCDNUrlFn } from "../logo"
 
-export const DEFAULT_LLM_PROVIDER_MODELS: LLMProviderModels = {
+export const DEFAULT_LLM_PROVIDER_MODELS = {
   "openai-compatible": {
     model: "use-custom-model",
     isCustomModel: true,
@@ -21,7 +21,7 @@ export const DEFAULT_LLM_PROVIDER_MODELS: LLMProviderModels = {
     isCustomModel: false,
     customModel: null,
   },
-}
+} as const satisfies Record<LLMProviderTypes, LLMProviderConfig["model"]>
 
 export const PROVIDER_ITEMS: Record<AllProviderTypes, { logo: (theme: Theme) => string, name: string, website: string }>
   = {

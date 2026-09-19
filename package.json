@@ -17,6 +17,7 @@
     "lint:fix": "eslint --fix",
     "postinstall": "wxt prepare",
     "test": "vitest run",
+    "test:e2e": "pnpm build && node --test --test-timeout=120000 scripts/e2e/provider-models.e2e.mjs",
     "test:cov": "vitest run --coverage",
     "test:watch": "vitest",
     "type-check": "tsc --noEmit",

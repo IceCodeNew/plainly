@@ -1,4 +1,3 @@
-import type { PartialDeep } from "type-fest"
 import type { ProviderConfig } from "@/types/config/provider"
 import { describe, expect, it } from "vitest"
 import { DEFAULT_PROVIDER_CONFIG } from "@/utils/constants/providers"
@@ -47,11 +46,10 @@ describe("provider config updates", () => {
     expect(result.provider).toBe("openai")
   })
 
-  it("rejects merged configs that no longer match the provider schema", () => {
-    const invalidUpdates = {
-      provider: "openai",
-    } as PartialDeep<ProviderConfig>
-
-    expect(() => updateProviderConfig(DEFAULT_PROVIDER_CONFIG.deepseek, invalidUpdates)).toThrow()
+  it("user cannot save an invalid provider: Given a configured provider, When the model ID is empty, Then the update is rejected", () => {
+    // Given
+    const provider = DEFAULT_PROVIDER_CONFIG.deepseek
+    // When / Then
+    expect(() => updateProviderConfig(provider, { model: { model: "" } })).toThrow()
   })
 })

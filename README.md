@@ -65,6 +65,13 @@ pnpm type-check
 pnpm build
 ```
 
+Run `pnpm test:e2e` for provider settings changes. It builds the extension and
+opens it in headless Chromium through `agent-browser`, which must be installed
+with its Chromium runtime. The tests use a local HTTP provider fake matching the
+documented models API; no provider credentials are required. After building,
+run a subset with `node --test --test-name-pattern='user refreshes' scripts/e2e/provider-models.e2e.mjs`.
+Run `pnpm test` for the full local regression suite before release.
+
 ## License And Attribution
 
 Vibe Reading is a modified fork of
