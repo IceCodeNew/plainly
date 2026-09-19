@@ -1,4 +1,4 @@
-import { Icon } from "@iconify/react"
+import { IconFileExport, IconX } from "@tabler/icons-react"
 import { useAtom, useSetAtom } from "jotai"
 import { Activity } from "react"
 import { i18n } from "#imports"
@@ -36,7 +36,7 @@ export function PromptList() {
               setSelectedPrompts([])
             }}
           >
-            <Icon icon="tabler:x" className="size-4" />
+            <IconX className="size-4" aria-hidden="true" />
             {i18n.t("options.translation.personalizedPrompts.exportPrompt.cancel")}
           </Button>
           <ExportPrompts />
@@ -48,7 +48,7 @@ export function PromptList() {
             onClick={() => setIsExportMode(true)}
             disabled={patterns.length === 0}
           >
-            <Icon icon="tabler:file-import" className="size-4" />
+            <IconFileExport className="size-4" aria-hidden="true" />
             {i18n.t("options.translation.personalizedPrompts.export")}
           </Button>
           <ConfigurePrompt />

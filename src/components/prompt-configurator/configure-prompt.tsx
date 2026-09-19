@@ -1,5 +1,5 @@
 import type { TranslatePromptObj } from "@/types/config/translate"
-import { Icon } from "@iconify/react"
+import { IconEye, IconPencil, IconPlus } from "@tabler/icons-react"
 import { useAtom, useAtomValue } from "jotai"
 import { useState } from "react"
 import { i18n } from "#imports"
@@ -84,12 +84,14 @@ export function ConfigurePrompt({
       {inEdit
         ? (
             <SheetTrigger render={<Button variant="ghost" className={cn("size-8", className)} disabled={isExportMode} {...props} />}>
-              <Icon icon={isDefault ? "tabler:eye" : "tabler:pencil"} className="size-4" />
+              {isDefault
+                ? <IconEye className="size-4" aria-hidden="true" />
+                : <IconPencil className="size-4" aria-hidden="true" />}
             </SheetTrigger>
           )
         : (
             <SheetTrigger render={<Button className={className} {...props} />}>
-              <Icon icon="tabler:plus" className="size-4" />
+              <IconPlus className="size-4" aria-hidden="true" />
               {i18n.t("options.translation.personalizedPrompts.addPrompt")}
             </SheetTrigger>
           )}

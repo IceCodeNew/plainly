@@ -1,5 +1,6 @@
+import type { Icon as TablerIcon } from "@tabler/icons-react"
 import type { ThemeMode } from "@/types/config/theme"
-import { Icon } from "@iconify/react"
+import { IconDeviceDesktop, IconMoon, IconSun } from "@tabler/icons-react"
 import { i18n } from "#imports"
 import { useTheme } from "@/components/providers/theme-provider"
 import {
@@ -13,10 +14,10 @@ import {
 import { themeModes } from "@/types/config/theme"
 import { ConfigCard } from "../../components/config-card"
 
-const MODE_ICON: Record<ThemeMode, string> = {
-  system: "tabler:device-desktop",
-  light: "tabler:sun",
-  dark: "tabler:moon",
+const MODE_ICON: Record<ThemeMode, TablerIcon> = {
+  system: IconDeviceDesktop,
+  light: IconSun,
+  dark: IconMoon,
 }
 
 const MODE_LABEL_KEY = {
@@ -27,6 +28,7 @@ const MODE_LABEL_KEY = {
 
 export default function AppearanceSettings() {
   const { themeMode, setThemeMode } = useTheme()
+  const CurrentModeIcon = MODE_ICON[themeMode]
 
   return (
     <ConfigCard
@@ -42,21 +44,24 @@ export default function AppearanceSettings() {
           <SelectTrigger className="w-full">
             <SelectValue render={<span />}>
               <span className="flex items-center gap-2">
-                <Icon icon={MODE_ICON[themeMode]} className="size-4" />
+                <CurrentModeIcon className="size-4" aria-hidden="true" />
                 {i18n.t(MODE_LABEL_KEY[themeMode])}
               </span>
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              {themeModes.map(mode => (
-                <SelectItem key={mode} value={mode}>
-                  <span className="flex items-center gap-2">
-                    <Icon icon={MODE_ICON[mode]} className="size-4" />
-                    {i18n.t(MODE_LABEL_KEY[mode])}
-                  </span>
-                </SelectItem>
-              ))}
+              {themeModes.map((mode) => {
+                const ModeIcon = MODE_ICON[mode]
+                return (
+                  <SelectItem key={mode} value={mode}>
+                    <span className="flex items-center gap-2">
+                      <ModeIcon className="size-4" aria-hidden="true" />
+                      {i18n.t(MODE_LABEL_KEY[mode])}
+                    </span>
+                  </SelectItem>
+                )
+              })}
             </SelectGroup>
           </SelectContent>
         </Select>

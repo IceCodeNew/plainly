@@ -1,5 +1,5 @@
 import type { APIProviderConfig } from "@/types/config/provider"
-import { Icon } from "@iconify/react"
+import { IconCheck, IconX } from "@tabler/icons-react"
 import { useMutation } from "@tanstack/react-query"
 import { useEffect } from "react"
 import { i18n } from "#imports"
@@ -13,9 +13,9 @@ import { getTranslatePrompt } from "@/utils/prompts/translate"
 function ConnectionSuccessIcon() {
   return (
     <div className="flex items-center justify-center size-5 rounded-full bg-green-200 dark:bg-green-800/50">
-      <Icon
-        icon="tabler:check"
+      <IconCheck
         className="size-3.5 text-green-700 dark:text-green-300 stroke-[2.5]"
+        aria-hidden="true"
       />
     </div>
   )
@@ -24,9 +24,9 @@ function ConnectionSuccessIcon() {
 function ConnectionErrorIcon() {
   return (
     <div className="flex items-center justify-center size-5 rounded-full bg-red-200 dark:bg-red-800/50">
-      <Icon
-        icon="tabler:x"
+      <IconX
         className="size-3.5 text-red-700 dark:text-red-300 stroke-[2.5]"
+        aria-hidden="true"
       />
     </div>
   )

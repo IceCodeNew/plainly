@@ -1,4 +1,4 @@
-import { Icon } from "@iconify/react"
+import { IconChevronDown, IconChevronUp } from "@tabler/icons-react"
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { cn } from "@/utils/styles/utils"
 
@@ -73,7 +73,7 @@ export function EntityListRail({ children, className, containerClassName }: Enti
     <div className={cn("relative", className)}>
       {canScroll && !isScrolledToTop && (
         <div className="absolute top-0 left-0 right-0 h-8 bg-linear-to-b from-background to-transparent flex items-center justify-center z-10 pointer-events-none">
-          <Icon icon="tabler:chevron-up" className="size-4 text-muted-foreground animate-bounce" />
+          <IconChevronUp className="size-4 text-muted-foreground animate-bounce" aria-hidden="true" />
         </div>
       )}
       <div
@@ -88,7 +88,7 @@ export function EntityListRail({ children, className, containerClassName }: Enti
       </div>
       {canScroll && !isScrolledToBottom && (
         <div className="absolute bottom-0 left-0 right-0 h-8 bg-linear-to-t from-background to-transparent flex items-center justify-center pointer-events-none">
-          <Icon icon="tabler:chevron-down" className="size-4 text-muted-foreground animate-bounce" />
+          <IconChevronDown className="size-4 text-muted-foreground animate-bounce" aria-hidden="true" />
         </div>
       )}
     </div>

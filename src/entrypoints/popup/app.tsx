@@ -1,4 +1,4 @@
-import { Icon } from "@iconify/react"
+import { IconSettings } from "@tabler/icons-react"
 import { i18n } from "#imports"
 import { openOptionsPage } from "@/utils/navigation"
 import { version } from "../../../package.json"
@@ -35,7 +35,7 @@ function App() {
             void openOptionsPage()
           }}
         >
-          <Icon icon="tabler:settings" className="size-4" strokeWidth={1.6} />
+          <IconSettings className="size-4" strokeWidth={1.6} aria-hidden="true" />
           <span className="text-[13px] font-medium">
             {i18n.t("popup.options")}
           </span>

@@ -1,5 +1,5 @@
 import type { PromptConfigList } from "./utils/prompt-file"
-import { Icon } from "@iconify/react/dist/iconify.js"
+import { IconFileImport } from "@tabler/icons-react"
 import { useAtom } from "jotai"
 import { useId } from "react"
 import { toast } from "sonner"
@@ -57,7 +57,7 @@ export function ImportPrompts() {
   return (
     <Button variant="outline" className="p-0">
       <Label htmlFor={inputId} className="w-full px-3">
-        <Icon icon="tabler:file-import" className="size-4" />
+        <IconFileImport className="size-4" aria-hidden="true" />
         {i18n.t("options.translation.personalizedPrompts.import")}
       </Label>
       <Input

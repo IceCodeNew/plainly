@@ -1,5 +1,5 @@
 import type { APIProviderConfig } from "@/types/config/provider"
-import { Icon } from "@iconify/react"
+import { IconChevronRight } from "@tabler/icons-react"
 import { useStore } from "@tanstack/react-form"
 import { useAtomValue, useSetAtom } from "jotai"
 import { useState } from "react"
@@ -40,12 +40,12 @@ export const FeatureProviderSection = withForm({
     return (
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <CollapsibleTrigger className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground cursor-pointer py-2">
-          <Icon
-            icon="tabler:chevron-right"
+          <IconChevronRight
             className={cn(
               "size-4 transition-transform duration-200",
               isOpen && "rotate-90",
             )}
+            aria-hidden="true"
           />
           <span>{i18n.t("options.apiProviders.form.featureProviders")}</span>
         </CollapsibleTrigger>

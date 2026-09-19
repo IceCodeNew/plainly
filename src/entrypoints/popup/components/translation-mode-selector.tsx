@@ -1,5 +1,6 @@
+import type { Icon as TablerIcon } from "@tabler/icons-react"
 import type { TranslationMode as TranslationModeType } from "@/types/config/translate"
-import { Icon } from "@iconify/react"
+import { IconLanguage, IconTextResize } from "@tabler/icons-react"
 import { useAtom } from "jotai"
 import { i18n } from "#imports"
 import { Button } from "@/components/ui/base-ui/button"
@@ -7,9 +8,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/base-ui
 import { configFieldsAtomMap } from "@/utils/atoms/config"
 import { cn } from "@/utils/styles/utils"
 
-const MODE_ICON: Record<TranslationModeType, { icon: string, className?: string, strokeWidth?: number }> = {
-  bilingual: { icon: "garden:translation-exists-stroke-12" },
-  translationOnly: { icon: "tabler:text-resize" },
+const MODE_ICON: Record<TranslationModeType, TablerIcon> = {
+  bilingual: IconLanguage,
+  translationOnly: IconTextResize,
 }
 
 const NEXT_MODE: Record<TranslationModeType, TranslationModeType> = {
@@ -34,6 +35,7 @@ export default function TranslationModeSelector() {
   const nextMode = NEXT_MODE[currentMode]
   const tooltipKey = MODE_TOOLTIP_KEY[currentMode]
   const actionLabel = i18n.t(tooltipKey.action)
+  const ModeIcon = MODE_ICON[currentMode]
 
   const handleModeToggle = () => {
     void setTranslateConfig(
@@ -54,7 +56,7 @@ export default function TranslationModeSelector() {
           />
         )}
       >
-        <Icon {...MODE_ICON[currentMode]} className={cn(currentMode === "translationOnly" && "size-4.5")} />
+        <ModeIcon className={cn(currentMode === "translationOnly" && "size-4.5")} aria-hidden="true" />
       </TooltipTrigger>
       <TooltipContent>
         <div className="whitespace-nowrap">
