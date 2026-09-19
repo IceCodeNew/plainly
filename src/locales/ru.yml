@@ -8,6 +8,9 @@ languageCombobox:
   searchLanguages: Search languages...
   noLanguagesFound: No languages found
 popup:
+  wordPrefixEmphasis:
+    title: Выделение начала слов
+    description: Выделяет жирным начало слов на латинице на всех страницах. Это необязательное оформление; ускорение чтения не доказано.
   theme: Тема
   autoLang: Авто
   sourceLang: Исходный

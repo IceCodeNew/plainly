@@ -1,7 +1,8 @@
 import type { ProvidersConfig } from "@/types/config/provider"
 import { useStore } from "@tanstack/react-form"
+import { dequal } from "dequal"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { i18n } from "#imports"
 import {
@@ -62,8 +63,13 @@ export function ProviderConfigForm() {
   const isLLM = isLLMProvider(providerType)
 
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const previousProviderConfigRef = useRef(providerConfig)
 
   useEffect(() => {
+    // Storage echoes create fresh objects; resetting on those can erase an in-progress edit.
+    if (dequal(previousProviderConfigRef.current, providerConfig))
+      return
+    previousProviderConfigRef.current = providerConfig
     if (providerConfig && isAPIProviderConfig(providerConfig)) {
       form.reset(providerConfig)
     }

@@ -8,6 +8,9 @@ languageCombobox:
   searchLanguages: Search languages...
   noLanguagesFound: No languages found
 popup:
+  wordPrefixEmphasis:
+    title: 単語の先頭を強調
+    description: 各ページでラテン文字の単語の先頭を太字にします。表示上の設定であり、読む速度が上がる効果は実証されていません。
   theme: テーマ
   autoLang: 自動検出
   sourceLang: ソース言語

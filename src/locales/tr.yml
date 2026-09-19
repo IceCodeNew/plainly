@@ -8,6 +8,9 @@ languageCombobox:
   searchLanguages: Search languages...
   noLanguagesFound: No languages found
 popup:
+  wordPrefixEmphasis:
+    title: Kelime başlarını vurgula
+    description: Tüm sayfalarda Latin harfli kelimelerin başlarını kalın gösterir. İsteğe bağlı bir görünüm ayarıdır; okumayı hızlandırdığı kanıtlanmamıştır.
   theme: Tema
   autoLang: Otomatik
   sourceLang: Kaynak

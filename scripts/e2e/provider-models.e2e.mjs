@@ -55,6 +55,13 @@ const server = createServer((request, response) => {
 })
 
 async function browser(...args) {
+  if (args[0] === "fill") {
+    // Native agent-browser fill clears via a JS setter, which races React's controlled value.
+    // Replace the selection through browser input events instead.
+    await browser("focus", args[1])
+    await browser("press", "Control+a")
+    return browser("keyboard", "inserttext", args[2])
+  }
   const { stdout } = await exec("agent-browser", [
     "--session", session,
     "--extension", extension,

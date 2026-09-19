@@ -8,6 +8,9 @@ languageCombobox:
   searchLanguages: Search languages...
   noLanguagesFound: No languages found
 popup:
+  wordPrefixEmphasis:
+    title: 詞首強調
+    description: 在各網頁中加粗拉丁字母單詞的開頭。此選項僅調整樣式，研究尚未證實其提速效果。
   theme: 主題
   autoLang: 自動偵測
   sourceLang: 來源語言

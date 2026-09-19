@@ -1,8 +1,10 @@
 import type { ContentScriptContext } from "#imports"
 import type { Config } from "@/types/config/config"
-import { DEFAULT_CONFIG } from "@/utils/constants/config"
+import { storage } from "#imports"
+import { CONFIG_STORAGE_KEY, DEFAULT_CONFIG } from "@/utils/constants/config"
 import { detectPageLanguageLightweight } from "@/utils/content/page-language"
 import { ensurePresetStyles } from "@/utils/host/translate/ui/style-injector"
+import { startWordPrefixEmphasis } from "@/utils/host/word-prefix-emphasis"
 import { logger } from "@/utils/logger"
 import { onMessage, sendMessage } from "@/utils/message"
 import { areSamePageTranslationOrigin } from "@/utils/url"
@@ -14,6 +16,24 @@ import { PageTranslationManager } from "./translation-control/page-translation"
 
 export async function bootstrapHostContent(ctx: ContentScriptContext, initialConfig: Config | null) {
   ensurePresetStyles(document)
+
+  let stopEmphasis: (() => void) | undefined
+  const updateEmphasis = (config: Config | null) => {
+    const enabled = config?.reading?.wordPrefixEmphasis ?? false
+    if (enabled && !stopEmphasis) {
+      stopEmphasis = startWordPrefixEmphasis(document)
+    }
+    else if (!enabled && stopEmphasis) {
+      stopEmphasis()
+      stopEmphasis = undefined
+    }
+  }
+  const unwatchReading = storage.watch<Config>(`local:${CONFIG_STORAGE_KEY}`, updateEmphasis)
+  updateEmphasis(initialConfig)
+  ctx.onInvalidated(() => {
+    unwatchReading()
+    stopEmphasis?.()
+  })
 
   const cleanupUrlListener = setupUrlChangeListener()
 

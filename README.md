@@ -22,6 +22,21 @@ configured by the user.
 - No Notebase, hosted account, config backup, telemetry dashboard, or project
   backend dependency.
 
+## Word-prefix emphasis
+
+Enable **Word-prefix emphasis** in the extension popup to bold the beginning of
+Latin-script words on accessible web pages. It is off by default, preserves case
+and text, and skips code and editable fields. Disable it to remove the formatting.
+
+This is a visual preference, not an established speed-reading aid.
+[A controlled study](https://link.springer.com/article/10.3758/s13414-025-03067-w)
+found slower reading without better comprehension;
+[an eye-tracking study](https://pmc.ncbi.nlm.nih.gov/articles/PMC12565662/)
+found no reading-speed benefit. Neither establishes an optimal bolded proportion.
+The implementation was compared with
+[Jiffy Reader](https://github.com/ansh/jiffyreader-public-archive), with independent
+DOM construction and full removal of owned markup when disabled.
+
 ## Proudly Missing
 
 Vibe Reading is smaller on purpose. Compared with the upstream Read Frog project,
@@ -65,10 +80,11 @@ pnpm type-check
 pnpm build
 ```
 
-Run `pnpm test:e2e` for provider settings changes. It builds the extension and
-opens it in headless Chromium through `agent-browser`, which must be installed
-with its Chromium runtime. The tests use a local HTTP provider fake matching the
-documented models API; no provider credentials are required. After building,
+Run `pnpm test:e2e` for provider settings and word-prefix emphasis changes. It
+builds the extension and opens it in headless Chromium through `agent-browser`,
+which must be installed with its Chromium runtime. The tests use local HTTP
+provider fakes matching the documented models and chat completions APIs;
+no provider credentials are required. After building,
 run a subset with `node --test --test-name-pattern='user refreshes' scripts/e2e/provider-models.e2e.mjs`.
 Run `pnpm test` for the full local regression suite before release.
 

@@ -8,6 +8,9 @@ languageCombobox:
   searchLanguages: Search languages...
   noLanguagesFound: No languages found
 popup:
+  wordPrefixEmphasis:
+    title: 단어 앞부분 강조
+    description: 모든 페이지에서 라틴 문자 단어의 앞부분을 굵게 표시합니다. 선택적 표시 설정이며 읽기 속도 향상은 입증되지 않았습니다.
   theme: 테마
   autoLang: 자동
   sourceLang: 원본

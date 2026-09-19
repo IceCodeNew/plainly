@@ -8,6 +8,9 @@ languageCombobox:
   searchLanguages: Search languages...
   noLanguagesFound: No languages found
 popup:
+  wordPrefixEmphasis:
+    title: Resaltar el inicio de las palabras
+    description: Resalta en negrita el inicio de las palabras en alfabeto latino en todas las páginas. Es un estilo opcional; no se ha demostrado que acelere la lectura.
   theme: Tema
   autoLang: Auto
   sourceLang: Origen

@@ -17,10 +17,10 @@
     "lint:fix": "eslint --fix",
     "postinstall": "wxt prepare",
     "test": "vitest run",
-    "test:e2e": "pnpm build && node --test --test-timeout=120000 scripts/e2e/provider-models.e2e.mjs",
+    "test:e2e": "pnpm build && node --test --test-timeout=120000 scripts/e2e/*.e2e.mjs",
     "test:cov": "vitest run --coverage",
     "test:watch": "vitest",
-    "type-check": "tsc --noEmit",
+    "type-check": "wxt prepare && tsc --noEmit",
     "scrape:ai-sdk-models": "npx tsx scripts/scrape-ai-sdk-provider-models.ts --out scripts/output/ai-sdk-provider-models.json",
     "zip": "wxt zip",
     "zip:edge": "wxt zip -b edge",
@@ -153,7 +153,7 @@
       "type-check": {
         "executor": "nx:run-commands",
         "options": {
-          "command": "tsc --noEmit"
+          "command": "pnpm run type-check"
         }
       }
     }

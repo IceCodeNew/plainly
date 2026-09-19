@@ -8,6 +8,9 @@ languageCombobox:
   searchLanguages: Search languages...
   noLanguagesFound: No languages found
 popup:
+  wordPrefixEmphasis:
+    title: Word-prefix emphasis
+    description: Bold the start of Latin words on all pages. Optional styling; faster reading is not established.
   theme: Theme
   autoLang: Auto
   sourceLang: Source

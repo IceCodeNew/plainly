@@ -8,6 +8,7 @@ import TranslateButton from "./components/translate-button"
 import TranslatePromptSelector from "./components/translate-prompt-selector"
 import TranslateProviderField from "./components/translate-provider-field"
 import TranslationModeSelector from "./components/translation-mode-selector"
+import { WordPrefixEmphasis } from "./components/word-prefix-emphasis"
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <TranslateButton className="min-w-0 flex-1" />
         </div>
         <AISmartContext />
+        <WordPrefixEmphasis />
       </div>
       <div className="flex items-center justify-between bg-neutral-200 px-2 py-1 dark:bg-neutral-800">
         <button

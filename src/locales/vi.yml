@@ -8,6 +8,9 @@ languageCombobox:
   searchLanguages: Search languages...
   noLanguagesFound: No languages found
 popup:
+  wordPrefixEmphasis:
+    title: Nhấn mạnh phần đầu từ
+    description: In đậm phần đầu của từ dùng chữ Latinh trên mọi trang. Đây là tùy chọn hiển thị; chưa có bằng chứng chắc chắn rằng cách này giúp đọc nhanh hơn.
   theme: Chủ đề
   autoLang: Tự động
   sourceLang: Nguồn

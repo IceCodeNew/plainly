@@ -54,7 +54,7 @@
       ]
     },
     "type-check": {
-      "cache": true,
+      "cache": false,
       "inputs": [
         "{projectRoot}/src/**/*",
         "{projectRoot}/tsconfig.json"
