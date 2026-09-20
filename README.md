@@ -75,10 +75,28 @@ The result is deliberately simple: **Vibe Reading is for reading.**
 
 ```bash
 pnpm install
+pnpm exec prek install
 pnpm test
 pnpm type-check
 pnpm build
 ```
+
+Prek is the Git-hook manager. For an existing Husky checkout, first check
+`git config --get core.hooksPath`. If it is `.husky/_`, run
+`git config --local --unset core.hooksPath` before installing prek. Review any
+other custom hook path rather than overwriting it.
+
+Run `pnpm exec prek run --all-files --stage manual` for the same repository and
+workflow checks as CI. [`prek.toml`](./prek.toml) also runs lint-staged before
+commit, commitlint on commit messages, and lint/type/test checks before push.
+Direct commits to `master` and `main` are rejected locally; CI does not apply this
+branch restriction. Hook installation is explicit, so dependency installation
+does not modify Git configuration in CI. The first run downloads pinned hook
+tools; subsequent runs reuse cached environments.
+
+Spelling checks include English documentation and source. The exclusions in
+[`.typos.toml`](./.typos.toml) cover ISO language identifiers and non-English
+translations; confirmed fixture fragments are allowed explicitly.
 
 Run `pnpm test:e2e` for provider settings and word-prefix emphasis changes. It
 builds the extension and opens it in headless Chromium through `agent-browser`,

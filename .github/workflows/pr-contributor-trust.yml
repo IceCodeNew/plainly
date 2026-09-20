@@ -1,6 +1,7 @@
 name: PR - Contributor Trust
 
-on:
+# Scripts come only from the base SHA/default branch, never from the PR head.
+on: # zizmor: ignore[dangerous-triggers]
   pull_request_target:
     types:
       - opened
@@ -63,14 +64,18 @@ jobs:
 
       - name: Write skip summary
         if: steps.inspect.outputs.should_skip == 'true'
+        env:
+          PR_NUMBER: ${{ steps.inspect.outputs.pr_number }}
+          AUTHOR_LOGIN: ${{ steps.inspect.outputs.author_login }}
+          SKIP_REASON: ${{ steps.inspect.outputs.skip_reason }}
         run: |
-          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          cat >> "$GITHUB_STEP_SUMMARY" <<EOF
           ## Contributor trust automation
 
-          - Event: `${{ github.event_name }}`
-          - PR: #${{ steps.inspect.outputs.pr_number }}
-          - Author: @${{ steps.inspect.outputs.author_login }}
-          - Result: skipped ${{ steps.inspect.outputs.skip_reason }}
+          - Event: \`$GITHUB_EVENT_NAME\`
+          - PR: #$PR_NUMBER
+          - Author: @$AUTHOR_LOGIN
+          - Result: skipped $SKIP_REASON
           EOF
 
   trust-score:
