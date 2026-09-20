@@ -17,11 +17,14 @@ jobs:
   release:
     name: Release Extension
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     env:
       SKIP_ENV_VALIDATION: true
-      HUSKY: 0
     steps:
-      - name: Checkout Repo
+      # Changesets uses Git to push the version commit and release tags.
+      - name: Checkout Repo # zizmor: ignore[artipacked]
         if: github.event_name != 'workflow_dispatch'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
@@ -30,6 +33,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: ${{ github.event.inputs.tag }}
+          persist-credentials: false
 
       - name: Setup pnpm
         uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
@@ -73,18 +77,24 @@ jobs:
 
       - name: Send Discord Notification
         if: steps.changesets.outputs.published == 'true'
+        env:
+          PUBLISHED_PACKAGES: ${{ steps.changesets.outputs.publishedPackages }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
-          VERSION=$(echo '${{ steps.changesets.outputs.publishedPackages }}' | jq -r '.[0].version')
+          VERSION=$(printf '%s' "$PUBLISHED_PACKAGES" | jq -r '.[0].version')
           TAG="v$VERSION"
           RELEASE_URL="https://github.com/${{ github.repository }}/releases/tag/$TAG"
 
           # Get release notes
-          RELEASE_DATA=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          RELEASE_DATA=$(curl -s -H "Authorization: token $GH_TOKEN" \
             "https://api.github.com/repos/${{ github.repository }}/releases/tags/$TAG")
           RELEASE_NOTES=$(echo "$RELEASE_DATA" | jq -r '.body // "No release notes available"')
 
           # Clean up release notes
           if [ -n "$RELEASE_NOTES" ] && [ "$RELEASE_NOTES" != "No release notes available" ]; then
+            # Preserve the regex match; shell glob substitution has different semantics.
+            # shellcheck disable=SC2001
             RELEASE_NOTES=$(echo "$RELEASE_NOTES" | sed 's/<!--[^>]*-->//g')
             RELEASE_NOTES=$(echo "$RELEASE_NOTES" | \
               sed 's/^## \(.*\)$/**\1**/g' | \
@@ -125,7 +135,7 @@ jobs:
             }')
 
           # Send to Discord
-          RESPONSE=$(curl -s -w "%{http_code}" -H "Content-Type: application/json" -X POST -d "$DISCORD_PAYLOAD" ${{ secrets.DISCORD_WEBHOOK_URL }})
+          RESPONSE=$(curl -s -w "%{http_code}" -H "Content-Type: application/json" -X POST -d "$DISCORD_PAYLOAD" "$DISCORD_WEBHOOK_URL")
           HTTP_CODE=$(echo "$RESPONSE" | tail -c 4)
           if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
             echo "✅ Discord notification sent"
@@ -140,16 +150,18 @@ jobs:
       - name: Upload Extension Zip to Release
         if: steps.changesets.outputs.published == 'true' || github.event_name == 'workflow_dispatch'
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            TAG="${{ github.event.inputs.tag }}"
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            TAG="$RELEASE_TAG"
           else
-            VERSION=$(echo '${{ steps.changesets.outputs.publishedPackages }}' | jq -r '.[0].version')
+            VERSION=$(printf '%s' "$PUBLISHED_PACKAGES" | jq -r '.[0].version')
             TAG="v$VERSION"
           fi
 
           gh release upload "$TAG" .output/*-chrome.zip .output/*-edge.zip .output/*-firefox.zip .output/*-sources.zip --clobber
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.inputs.tag }}
+          PUBLISHED_PACKAGES: ${{ steps.changesets.outputs.publishedPackages }}
 
       # - name: Submit to Chrome & Edge Stores
       #   if: steps.changesets.outputs.published == 'true'

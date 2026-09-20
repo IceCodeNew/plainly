@@ -21,6 +21,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Get changed changeset files
         id: changed-files
@@ -37,13 +38,15 @@ jobs:
       - name: Check for major changes
         id: check-major
         if: steps.changed-files.outputs.any_changed == 'true'
+        env:
+          CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
         run: |
           echo "Checking changeset files for major changes..."
 
           major_files=""
           major_packages=""
 
-          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+          for file in $CHANGED_FILES; do
             echo "Checking file: $file"
 
             # Extract front matter and check for major (more robust parsing)
@@ -58,20 +61,25 @@ jobs:
           done
 
           if [ -n "$major_files" ]; then
-            echo "has_major=true" >> $GITHUB_OUTPUT
-            echo "major_files=$major_files" >> $GITHUB_OUTPUT
-            echo "major_packages=$major_packages" >> $GITHUB_OUTPUT
+            {
+              echo "has_major=true"
+              echo "major_files=$major_files"
+              echo "major_packages=$major_packages"
+            } >> "$GITHUB_OUTPUT"
           else
-            echo "has_major=false" >> $GITHUB_OUTPUT
+            echo "has_major=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Comment on PR with major version warning
         if: steps.check-major.outputs.has_major == 'true' && github.event.pull_request.head.repo.full_name == github.repository
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          MAJOR_FILES: ${{ steps.check-major.outputs.major_files }}
+          MAJOR_PACKAGES: ${{ steps.check-major.outputs.major_packages }}
         with:
           script: |
-            const majorFiles = ${{ toJSON(steps.check-major.outputs.major_files) }}.trim();
-            const majorPackages = ${{ toJSON(steps.check-major.outputs.major_packages) }}.trim();
+            const majorFiles = process.env.MAJOR_FILES.trim();
+            const majorPackages = process.env.MAJOR_PACKAGES.trim();
 
             // Check if we already have a major version warning comment
             const comments = await github.rest.issues.listComments({
