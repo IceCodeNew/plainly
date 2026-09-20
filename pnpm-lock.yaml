@@ -170,8 +170,8 @@ importers:
         specifier: ^2.0.36
         version: 2.0.64(zod@4.6.5)
       '@ai-sdk/openai':
-        specifier: ^3.0.69
-        version: 3.0.113(zod@4.6.5)
+        specifier: ^4.0.0
+        version: 4.0.71(zod@4.6.5)
       '@ai-sdk/openai-compatible':
         specifier: ^2.0.48
         version: 2.0.75(zod@4.6.5)
@@ -425,9 +425,9 @@ packages:
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
-  '@ai-sdk/openai@3.0.113':
-    resolution: {integrity: sha512-/T3z8ECzxfU5PqoC4i9/yzIqjQw2yRJOgeedGzBJ1RdFH9ZfL7TcDKStAiXJ5nZwFO50FUkqf6SgujhOrMGJKA==}
-    engines: {node: '>=18'}
+  '@ai-sdk/openai@4.0.71':
+    resolution: {integrity: sha512-w8FuHr1bD/bP/8SIgcaJKUyePE4ke9s7+Ew2ed/9i5mDoFXEfyVUyFX8R0wQ3YfcdMKmTs8ct/f6XJsXsnPVsQ==}
+    engines: {node: '>=22'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
@@ -5819,10 +5819,6 @@ packages:
     resolution: {integrity: sha512-A5F0cM6+mDleacLIEUkmfpkBbnHJFV1d2rprHU2MXNk7mlxHq2zGojA+SRvQD1RoMo9gqjZPWEaKG4v1BQ48lw==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
 
-  tough-cookie@6.0.1:
-    resolution: {integrity: sha512-LktZQb3IeoUWB9lqR5EWTHgW/VTITCXg4D21M+lvybRVdylLrRMnqaIONLVb5mav8vM19m44HIcGq4qASeu2Qw==}
-    engines: {node: '>=16'}
-
   tough-cookie@6.0.2:
     resolution: {integrity: sha512-exgYmnmL/sJpR3upZfXG5PoatXQii55xAiXGXzY+sROLZ/Y+SLcp9PgJNI9Vz37HpQ74WvDcLT8eqm+kV3FzrA==}
     engines: {node: '>=16'}
@@ -6285,10 +6281,10 @@ snapshots:
       '@ai-sdk/provider-utils': 4.0.51(zod@4.6.5)
       zod: 4.6.5
 
-  '@ai-sdk/openai@3.0.113(zod@4.6.5)':
+  '@ai-sdk/openai@4.0.71(zod@4.6.5)':
     dependencies:
-      '@ai-sdk/provider': 3.0.16
-      '@ai-sdk/provider-utils': 4.0.51(zod@4.6.5)
+      '@ai-sdk/provider': 4.0.17
+      '@ai-sdk/provider-utils': 5.0.45(zod@4.6.5)
       zod: 4.6.5
 
   '@ai-sdk/provider-utils@4.0.51(zod@4.6.5)':
@@ -10778,7 +10774,7 @@ snapshots:
       rettime: 0.11.11
       statuses: 2.0.2
       strict-event-emitter: 0.5.1
-      tough-cookie: 6.0.1
+      tough-cookie: 6.0.2
       type-fest: 5.9.0
       until-async: 3.0.2
       yargs: 17.7.2
@@ -11773,11 +11769,6 @@ snapshots:
   toml-eslint-parser@1.0.3:
     dependencies:
       eslint-visitor-keys: 5.0.1
-
-  tough-cookie@6.0.1:
-    dependencies:
-      tldts: 7.0.30
-    optional: true
 
   tough-cookie@6.0.2:
     dependencies:
