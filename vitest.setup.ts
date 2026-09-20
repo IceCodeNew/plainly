@@ -1,5 +1,5 @@
 import { vi } from "vitest"
-import "@testing-library/jest-dom"
+import "@testing-library/jest-dom/vitest"
 
 // Keep test output quiet by default. Individual tests can still spy on these
 // methods when they need to assert logging behavior.
