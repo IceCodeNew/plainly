@@ -39,7 +39,7 @@ export function PromptList() {
             <IconX className="size-4" aria-hidden="true" />
             {i18n.t("options.translation.personalizedPrompts.exportPrompt.cancel")}
           </Button>
-          <ExportPrompts />
+          {isExportMode && <ExportPrompts />}
         </Activity>
         <Activity mode={isExportMode ? "hidden" : "visible"}>
           <ImportPrompts />

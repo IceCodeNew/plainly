@@ -38,6 +38,26 @@ it("user exports selected prompts: Given custom prompts with Unicode, When selec
     await browser("find", "role", "button", "click", "--name", name, "--exact")
   }
 
+  async function assertSelectedPrompts(names) {
+    const { result } = await browser("eval", `Array.from(document.querySelectorAll('[data-slot="card"]')).filter(card => card.querySelector('[role="checkbox"][aria-checked="true"]')).map(card => card.querySelector('label[title]').title)`)
+    assert.deepEqual(result, names)
+  }
+
+  async function assertDownload(prompts) {
+    const downloaded = (async () => {
+      const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(10000)])
+      for await (const event of watch(downloadDirectory, { signal })) {
+        if (event.filename?.endsWith(".json"))
+          return event.filename
+      }
+      throw new Error("No JSON download completed")
+    })()
+    const [filename] = await Promise.all([downloaded, clickButton("Export Selected")])
+    assert.equal(filename, "Vibe Reading_prompts.json")
+    assert.deepEqual(await readFile(join(downloadDirectory, filename)), Buffer.from(JSON.stringify(prompts, null, 2)))
+    await rm(join(downloadDirectory, filename))
+  }
+
   async function addPrompt({ name, systemPrompt, prompt }) {
     await clickButton("Add Prompt")
     await browser("wait", "#prompt-name")
@@ -67,19 +87,23 @@ it("user exports selected prompts: Given custom prompts with Unicode, When selec
     await clickButton("Export")
     await browser("click", `[data-slot='card']:has(label[title=${JSON.stringify(last.name)}]) [data-slot='card-content']`)
     await browser("click", `[data-slot='card']:has(label[title=${JSON.stringify(first.name)}]) [data-slot='card-content']`)
-    const downloaded = (async () => {
-      const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(10000)])
-      for await (const event of watch(downloadDirectory, { signal })) {
-        if (event.filename?.endsWith(".json"))
-          return event.filename
-      }
-      throw new Error("No JSON download completed")
-    })()
-    const [filename] = await Promise.all([downloaded, clickButton("Export Selected")])
 
     // Then
-    assert.equal(filename, "Vibe Reading_prompts.json")
-    assert.deepEqual(await readFile(join(downloadDirectory, filename)), Buffer.from(JSON.stringify([first, last], null, 2)))
+    await assertSelectedPrompts([first.name, last.name])
+    await assertDownload([first, last])
+
+    // Given another prompt added after leaving export mode
+    const later = { name: "追加", systemPrompt: "New after export", prompt: "次の文章を翻訳" }
+    await addPrompt(later)
+
+    // When export mode is reopened and only the new prompt is selected
+    await clickButton("Export")
+    await assertSelectedPrompts([])
+    await browser("click", `[data-slot='card']:has(label[title=${JSON.stringify(later.name)}]) [role='checkbox']`)
+
+    // Then the new prompt is exported without the previous selection
+    await assertSelectedPrompts([later.name])
+    await assertDownload([later])
   }
   finally {
     controller.abort()
