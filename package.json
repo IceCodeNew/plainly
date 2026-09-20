@@ -31,7 +31,7 @@
   "dependencies": {
     "@ai-sdk/deepseek": "^2.0.36",
     "@ai-sdk/openai": "^4.0.0",
-    "@ai-sdk/openai-compatible": "^2.0.48",
+    "@ai-sdk/openai-compatible": "^3.0.0",
     "@babel/runtime": "^8.0.0",
     "@base-ui/react": "^1.5.0",
     "@codemirror/lang-css": "^6.3.1",
