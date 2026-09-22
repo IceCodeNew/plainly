@@ -7,8 +7,8 @@ import { formatPageTranslationShortcut, isValidConfiguredPageTranslationShortcut
 const CLEAR_KEYS = new Set(["Backspace", "Delete"])
 
 export function ShortcutKeyRecorder(
-  { shortcutKey: initialShortcutKey, onChange, className }:
-  { shortcutKey: string, onChange?: (shortcutKey: string) => void, className?: string },
+  { shortcutKey: initialShortcutKey, onChange, className, id }:
+  { shortcutKey: string, onChange?: (shortcutKey: string) => void, className?: string, id?: string },
 ) {
   const [inRecording, setInRecording] = useState(false)
   const [draftShortcut, setDraftShortcut] = useState("")
@@ -113,6 +113,7 @@ export function ShortcutKeyRecorder(
   return (
     <Input
       ref={inputRef}
+      id={id}
       className={className}
       onFocus={startRecord}
       onBlur={handleBlur}

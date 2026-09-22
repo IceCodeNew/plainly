@@ -13,7 +13,7 @@ const tabsOnActivatedAddListenerMock = vi.fn()
 const tabsQueryMock = vi.fn()
 const webNavigationOnCommittedAddListenerMock = vi.fn()
 const injectHostContentIntoTabIframesMock = vi.fn()
-const injectHostContentIntoCurrentTabIframesAfterNodeTranslationMock = vi.fn()
+const updateActionIconMock = vi.fn()
 const loggerErrorMock = vi.fn()
 const loggerWarnMock = vi.fn()
 
@@ -33,7 +33,10 @@ vi.mock("@/utils/logger", () => ({
 
 vi.mock("../iframe-injection", () => ({
   injectHostContentIntoTabIframes: injectHostContentIntoTabIframesMock,
-  injectHostContentIntoCurrentTabIframesAfterNodeTranslation: injectHostContentIntoCurrentTabIframesAfterNodeTranslationMock,
+}))
+
+vi.mock("../action-icon", () => ({
+  updateActionIcon: updateActionIconMock,
 }))
 
 function getHandler(name: string) {
@@ -153,21 +156,6 @@ describe("translationMessage", () => {
     expect(sendMessageMock).toHaveBeenCalledWith("askManagerToTogglePageTranslation", { enabled: false }, 42)
   })
 
-  it("injects current iframes after successful top-frame node translation", async () => {
-    await setupSubject()
-
-    await getHandler("injectCurrentIframesAfterTopFrameNodeTranslation")({
-      data: undefined,
-      sender: {
-        tab: { id: 42 },
-        frameId: 0,
-      },
-    })
-
-    expect(injectHostContentIntoCurrentTabIframesAfterNodeTranslationMock).toHaveBeenCalledWith(42)
-    expect(injectHostContentIntoTabIframesMock).not.toHaveBeenCalled()
-  })
-
   it("stores detected language by sender tab and notifies when it is the active tab", async () => {
     await setupSubject()
     tabsQueryMock.mockResolvedValue([{ id: 42 }])
@@ -265,23 +253,6 @@ describe("translationMessage", () => {
     })
 
     expect(detectedCode).toBe("cmn")
-  })
-
-  it("rejects iframe senders for top-frame node translation iframe injection", async () => {
-    await setupSubject()
-
-    await getHandler("injectCurrentIframesAfterTopFrameNodeTranslation")({
-      data: undefined,
-      sender: { tab: { id: 42 }, frameId: 7 },
-    })
-
-    expect(injectHostContentIntoCurrentTabIframesAfterNodeTranslationMock).not.toHaveBeenCalled()
-    expect(loggerErrorMock).toHaveBeenCalledWith(
-      "Invalid sender in injectCurrentIframesAfterTopFrameNodeTranslation",
-      expect.objectContaining({
-        sender: { tab: { id: 42 }, frameId: 7 },
-      }),
-    )
   })
 
   it("waits for the top-frame manager to validate before enabling iframe injection", async () => {

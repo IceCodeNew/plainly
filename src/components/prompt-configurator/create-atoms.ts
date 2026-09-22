@@ -16,7 +16,5 @@ export function createPromptAtoms<T extends ConfigWithCustomPrompts>(
         void set(configAtom, { ...get(configAtom), customPromptsConfig: newConfig })
       },
     ),
-    exportMode: atom(false),
-    selectedPrompts: atom<string[]>([]),
   }
 }

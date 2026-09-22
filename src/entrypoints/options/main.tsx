@@ -5,11 +5,9 @@ import { QueryClientProvider } from "@tanstack/react-query"
 import { Provider as JotaiProvider } from "jotai"
 import { useHydrateAtoms } from "jotai/utils"
 import * as React from "react"
-import { HashRouter } from "react-router"
 import AppToast from "@/components/app-toast"
 import { ThemeProvider } from "@/components/providers/theme-provider"
 import { RecoveryBoundary } from "@/components/recovery/recovery-boundary"
-import { SidebarProvider } from "@/components/ui/base-ui/sidebar"
 import { TooltipProvider } from "@/components/ui/base-ui/tooltip"
 import { configAtom } from "@/utils/atoms/config"
 import { baseThemeModeAtom } from "@/utils/atoms/theme"
@@ -19,8 +17,6 @@ import { renderPersistentReactRoot } from "@/utils/react-root"
 import { queryClient } from "@/utils/tanstack-query"
 import { applyTheme, getLocalThemeMode, isDarkMode } from "@/utils/theme"
 import App from "./app"
-import { AppSidebar } from "./app-sidebar"
-import { SettingsSearch } from "./command-palette/settings-search"
 import "@/assets/styles/theme.css"
 import "./style.css"
 
@@ -40,7 +36,7 @@ function HydrateAtoms({
 
 async function initApp() {
   const root = document.getElementById("root")!
-  root.className = "antialiased bg-background"
+  root.className = "antialiased bg-background text-foreground"
 
   const [configValue, themeMode] = await Promise.all([
     getLocalConfig(),
@@ -55,20 +51,14 @@ async function initApp() {
       <JotaiProvider>
         <HydrateAtoms initialValues={[[configAtom, config], [baseThemeModeAtom, themeMode]]}>
           <QueryClientProvider client={queryClient}>
-            <HashRouter>
-              <SidebarProvider>
-                <ThemeProvider>
-                  <TooltipProvider>
-                    <AppToast />
-                    <RecoveryBoundary>
-                      <AppSidebar />
-                      <App />
-                      <SettingsSearch />
-                    </RecoveryBoundary>
-                  </TooltipProvider>
-                </ThemeProvider>
-              </SidebarProvider>
-            </HashRouter>
+            <ThemeProvider>
+              <TooltipProvider>
+                <AppToast />
+                <RecoveryBoundary>
+                  <App />
+                </RecoveryBoundary>
+              </TooltipProvider>
+            </ThemeProvider>
           </QueryClientProvider>
         </HydrateAtoms>
       </JotaiProvider>

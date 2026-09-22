@@ -34,8 +34,3 @@ export function formatHotkey(hotkey: string): string {
 
   return formatPageTranslationShortcut(hotkey, platform)
 }
-
-export function getCommandPaletteShortcutHint(): string {
-  const os = detectOS()
-  return (os === "MacOS" || os === "iOS") ? "⌘K" : "Ctrl+K"
-}

@@ -1,49 +1,55 @@
-import { Icon } from "@iconify/react"
+import { useAtom, useAtomValue } from "jotai"
 import { i18n } from "#imports"
-import { openOptionsPage } from "@/utils/navigation"
-import { version } from "../../../package.json"
-import { AISmartContext } from "./components/ai-smart-context"
-import LanguageOptionsSelector from "./components/language-options-selector"
-import TranslateButton from "./components/translate-button"
-import TranslatePromptSelector from "./components/translate-prompt-selector"
-import TranslateProviderField from "./components/translate-provider-field"
-import TranslationModeSelector from "./components/translation-mode-selector"
+import { SegmentedControl } from "@/components/segmented-control"
+import { isAPIProviderConfig } from "@/types/config/provider"
+import { configFieldsAtomMap } from "@/utils/atoms/config"
+import { featureProviderConfigAtom } from "@/utils/atoms/provider"
+import { LanguageRow } from "./components/language-row"
+import { PopupFooter } from "./components/popup-footer"
+import { SetupCard } from "./components/setup-card"
+import { TranslateButton } from "./components/translate-button"
+import { usePopupSync } from "./use-popup-sync"
 
-function App() {
+function DisplayModeControl() {
+  const [translateConfig, setTranslateConfig] = useAtom(configFieldsAtomMap.translate)
+
   return (
-    <>
-      <div className="bg-background flex flex-col gap-4 px-6 pt-5 pb-4">
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-semibold">{i18n.t("name")}</span>
-        </div>
-        <LanguageOptionsSelector />
-        <TranslateProviderField />
-        <TranslatePromptSelector />
-        <div className="flex w-full items-center gap-2">
-          <TranslationModeSelector />
-          <TranslateButton className="min-w-0 flex-1" />
-        </div>
-        <AISmartContext />
-      </div>
-      <div className="flex items-center justify-between bg-neutral-200 px-2 py-1 dark:bg-neutral-800">
-        <button
-          type="button"
-          className="flex cursor-pointer items-center gap-1 rounded-md px-2 py-1 hover:bg-neutral-300 dark:hover:bg-neutral-700"
-          onClick={() => {
-            void openOptionsPage()
-          }}
-        >
-          <Icon icon="tabler:settings" className="size-4" strokeWidth={1.6} />
-          <span className="text-[13px] font-medium">
-            {i18n.t("popup.options")}
-          </span>
-        </button>
-        <span className="text-sm text-neutral-500 dark:text-neutral-400">
-          {version}
-        </span>
-      </div>
-    </>
+    <SegmentedControl
+      aria-label={i18n.t("popup.displayMode")}
+      value={translateConfig.mode}
+      options={[
+        { value: "bilingual", label: i18n.t("popup.bilingual") },
+        { value: "translationOnly", label: i18n.t("popup.translationOnly") },
+      ]}
+      onChange={mode => void setTranslateConfig({ mode })}
+    />
   )
 }
 
-export default App
+/**
+ * Popup layout reads top to bottom as one sentence: from this language, into
+ * that language, shown this way, translate. Setup replaces the action when
+ * the chosen service has no key yet.
+ */
+export default function App() {
+  usePopupSync()
+  const providerConfig = useAtomValue(featureProviderConfigAtom("translate"))
+  const needsApiKey = !!providerConfig && isAPIProviderConfig(providerConfig) && !providerConfig.apiKey?.trim()
+
+  return (
+    <div className="flex min-h-[300px] flex-col justify-between">
+      <div className="flex flex-col gap-3.5 px-4 pt-4 pb-4">
+        <LanguageRow muted={needsApiKey} />
+        {needsApiKey && providerConfig
+          ? <SetupCard providerConfig={providerConfig} />
+          : (
+              <>
+                <DisplayModeControl />
+                <TranslateButton />
+              </>
+            )}
+      </div>
+      <PopupFooter />
+    </div>
+  )
+}

@@ -5,7 +5,8 @@ import { DEFAULT_DETECTED_CODE } from "@/utils/constants/config"
 import { getDetectedCodeStateKey, getTranslationStateKey } from "@/utils/constants/storage-keys"
 import { logger } from "@/utils/logger"
 import { onMessage, sendMessage } from "@/utils/message"
-import { injectHostContentIntoCurrentTabIframesAfterNodeTranslation, injectHostContentIntoTabIframes } from "./iframe-injection"
+import { updateActionIcon } from "./action-icon"
+import { injectHostContentIntoTabIframes } from "./iframe-injection"
 import {
   getPageTranslationEnabled,
   getPageTranslationState,
@@ -16,6 +17,9 @@ import {
 function notifyPageTranslationStateChanged(tabId: number, enabled: boolean) {
   void sendMessage("notifyTranslationStateChanged", { enabled }, tabId)
     .catch(error => logger.warn("Failed to notify page translation state change", error))
+  // The popup is often closed, so having no receiver is expected.
+  void sendMessage("pageTranslationStateChanged", { tabId, enabled }).catch(() => {})
+  void updateActionIcon(tabId, enabled)
 }
 
 function requestManagerToTogglePageTranslation(tabId: number, enabled: boolean) {
@@ -70,18 +74,6 @@ export function translationMessage() {
     }
     logger.error("Invalid tabId in getEnablePageTranslationFromContentScript", msg)
     return false
-  })
-
-  onMessage("injectCurrentIframesAfterTopFrameNodeTranslation", async (msg) => {
-    const tabId = msg.sender?.tab?.id
-    const frameId = msg.sender?.frameId
-
-    if (typeof tabId === "number" && frameId === 0) {
-      await injectHostContentIntoCurrentTabIframesAfterNodeTranslation(tabId)
-      return
-    }
-
-    logger.error("Invalid sender in injectCurrentIframesAfterTopFrameNodeTranslation", msg)
   })
 
   onMessage("reportDetectedPageLanguage", async (msg) => {
@@ -181,5 +173,6 @@ export function translationMessage() {
       return
 
     await storage.removeItem(getTranslationStateKey(details.tabId))
+    void updateActionIcon(details.tabId, false)
   })
 }

@@ -206,10 +206,6 @@ export async function injectHostContentIntoTabIframes(
     }, frames)))
 }
 
-export async function injectHostContentIntoCurrentTabIframesAfterNodeTranslation(tabId: number) {
-  await injectHostContentIntoTabIframes(tabId, { requirePageTranslationEnabled: false })
-}
-
 export function setupIframeInjection() {
   browser.tabs.onRemoved.addListener(clearTabDocumentState)
   browser.webNavigation.onBeforeNavigate.addListener((details) => {
@@ -225,8 +221,7 @@ export function setupIframeInjection() {
   })
 
   // Only page translation eagerly injects host content into newly completed
-  // subframes. Top-frame node translation can separately scan existing iframes
-  // once, but it does not enable late iframe injection.
+  // subframes.
   browser.webNavigation.onCompleted.addListener(async (details) => {
     if (details.frameId === 0) {
       if (!isFullRuntimeAutoInjectUrl(details.url)) {

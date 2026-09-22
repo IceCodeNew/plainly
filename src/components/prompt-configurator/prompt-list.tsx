@@ -1,63 +1,79 @@
-import { Icon } from "@iconify/react"
-import { useAtom, useSetAtom } from "jotai"
-import { Activity } from "react"
+import type { TranslatePromptObj } from "@/types/config/translate"
+import { useAtom } from "jotai"
+import { useId } from "react"
 import { i18n } from "#imports"
-import { Button } from "@/components/ui/base-ui/button"
+import { DEFAULT_TRANSLATE_PROMPT, DEFAULT_TRANSLATE_PROMPT_ID, DEFAULT_TRANSLATE_SYSTEM_PROMPT } from "@/utils/constants/prompt"
+import { cn } from "@/utils/styles/utils"
 import { ConfigurePrompt } from "./configure-prompt"
 import { usePromptAtoms } from "./context"
+import { DeletePrompt } from "./delete-prompt"
 import { ExportPrompts } from "./export-prompts"
 import { ImportPrompts } from "./import-prompts"
-import { PromptGrid } from "./prompt-grid"
 
+/**
+ * Prompts as a radio list: the default one first, then the reader's own.
+ * The chosen prompt is what page translation sends to the model.
+ */
 export function PromptList() {
   const promptAtoms = usePromptAtoms()
   const [config, setConfig] = useAtom(promptAtoms.config)
-  const setSelectedPrompts = useSetAtom(promptAtoms.selectedPrompts)
-  const [isExportMode, setIsExportMode] = useAtom(promptAtoms.exportMode)
+  const radioGroupId = useId()
 
-  const patterns = config.patterns
-  const currentPromptId = config.promptId
+  const defaultPrompt: TranslatePromptObj = {
+    id: DEFAULT_TRANSLATE_PROMPT_ID,
+    name: i18n.t("options.quality.prompts.default"),
+    systemPrompt: DEFAULT_TRANSLATE_SYSTEM_PROMPT,
+    prompt: DEFAULT_TRANSLATE_PROMPT,
+  }
+  const prompts = [defaultPrompt, ...config.patterns]
 
-  const setCurrentPromptId = (value: string | null) => {
+  const select = (prompt: TranslatePromptObj) => {
     setConfig({
       ...config,
-      promptId: value,
+      promptId: prompt.id === DEFAULT_TRANSLATE_PROMPT_ID ? null : prompt.id,
     })
   }
 
   return (
-    <section className="w-full">
-      <div className="w-full text-end mb-4 gap-3 flex justify-end">
-        <Activity mode={isExportMode ? "visible" : "hidden"}>
-          <Button
-            variant="outline"
-            onClick={() => {
-              setIsExportMode(false)
-              setSelectedPrompts([])
-            }}
-          >
-            <Icon icon="tabler:x" className="size-4" />
-            {i18n.t("options.translation.personalizedPrompts.exportPrompt.cancel")}
-          </Button>
-          <ExportPrompts />
-        </Activity>
-        <Activity mode={isExportMode ? "hidden" : "visible"}>
+    <div className="flex flex-col gap-2.5 px-4 py-3.5">
+      <div className="flex items-center justify-between">
+        <div className="text-[13px] font-medium">{i18n.t("options.quality.prompts.title")}</div>
+        <div className="flex items-center gap-3 text-xs">
           <ImportPrompts />
-          <Button
-            variant="outline"
-            onClick={() => setIsExportMode(true)}
-            disabled={patterns.length === 0}
-          >
-            <Icon icon="tabler:file-import" className="size-4" />
-            {i18n.t("options.translation.personalizedPrompts.export")}
-          </Button>
+          <ExportPrompts />
           <ConfigurePrompt />
-        </Activity>
+        </div>
       </div>
-      <PromptGrid
-        currentPromptId={currentPromptId}
-        setCurrentPromptId={setCurrentPromptId}
-      />
-    </section>
+      <div className="flex flex-col gap-1">
+        {prompts.map((prompt) => {
+          const isDefault = prompt.id === DEFAULT_TRANSLATE_PROMPT_ID
+          const isActive = isDefault ? config.promptId === null : config.promptId === prompt.id
+          const inputId = `${radioGroupId}-${prompt.id}`
+
+          return (
+            <div
+              key={prompt.id}
+              className={cn("flex items-center gap-2.5 rounded-lg px-2.5 py-2", isActive && "bg-muted")}
+            >
+              <input
+                type="radio"
+                id={inputId}
+                name={radioGroupId}
+                checked={isActive}
+                onChange={() => select(prompt)}
+                className="size-3.5 cursor-pointer accent-primary"
+              />
+              <label htmlFor={inputId} className="min-w-0 flex-1 cursor-pointer truncate text-[13px]" title={prompt.name}>
+                {prompt.name}
+              </label>
+              <div className="flex shrink-0 items-center gap-3 text-xs">
+                {!isDefault && <DeletePrompt originPrompt={prompt} />}
+                <ConfigurePrompt originPrompt={prompt} />
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
   )
 }

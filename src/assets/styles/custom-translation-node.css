@@ -1,5 +1,10 @@
 @import "@/assets/styles/host-theme.css";
 
+.plainly-translated-block-content[data-plainly-custom-translation-style="line"] {
+  border-left: 2px solid color-mix(in srgb, var(--plainly-brand) 55%, transparent);
+  padding-left: 12px;
+}
+
 [data-plainly-custom-translation-style="blur"] {
   filter: blur(4px);
   opacity: 0.75;
@@ -35,7 +40,7 @@
 }
 
 [data-plainly-custom-translation-style="textColor"] {
-  color: oklch(0.693 0.17 162.48) !important;
+  color: var(--plainly-brand-strong) !important;
 }
 
 [data-plainly-custom-translation-style="background"] {

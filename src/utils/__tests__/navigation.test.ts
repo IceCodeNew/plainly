@@ -17,12 +17,12 @@ describe("navigation", () => {
     })
   })
 
-  it("opens the options page with a hash route", async () => {
-    await openOptionsPage({ route: "/translation" })
+  it("opens the options page scrolled to a section", async () => {
+    await openOptionsPage({ section: "providers" })
 
     expect(browser.tabs.create).toHaveBeenCalledWith({
       active: true,
-      url: "chrome-extension://test-extension-id/options.html#/translation",
+      url: "chrome-extension://test-extension-id/options.html#providers",
     })
   })
 })

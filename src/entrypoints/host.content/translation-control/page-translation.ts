@@ -10,6 +10,7 @@ import { walkAndLabelElement } from "@/utils/host/dom/traversal"
 import { removeAllTranslatedWrapperNodes, translateWalkedElement } from "@/utils/host/translate/node-manipulation"
 import { validateTranslationConfigAndToast } from "@/utils/host/translate/translate-text"
 import { translateTextForPageTitle } from "@/utils/host/translate/translate-variants"
+import { resetTranslationProgress } from "@/utils/host/translate/ui/translation-progress"
 import { getOrCreateWebPageContext } from "@/utils/host/translate/webpage-context"
 import { logger } from "@/utils/logger"
 import { sendMessage } from "@/utils/message"
@@ -41,16 +42,9 @@ interface IPageTranslationManager {
    * the tab-level page translation session.
    */
   restart: () => Promise<void>
-
-  /**
-   * Registers page translation triggers
-   */
-  registerPageTranslationTriggers: () => () => void
 }
 
 export class PageTranslationManager implements IPageTranslationManager {
-  private static readonly MAX_DURATION = 500
-  private static readonly MOVE_THRESHOLD = 30 * 30
   private static readonly DEFAULT_INTERSECTION_OPTIONS: SimpleIntersectionOptions = {
     root: null,
     rootMargin: "600px",
@@ -113,6 +107,7 @@ export class PageTranslationManager implements IPageTranslationManager {
     })
 
     this.isPageTranslating = true
+    resetTranslationProgress()
     await this.primeDocumentTitleContext(
       config.translate.enableAIContentAware && isLLMProviderConfig(providerConfig),
     )
@@ -178,6 +173,7 @@ export class PageTranslationManager implements IPageTranslationManager {
     this.walkId = null
     this.walkBlockedElementsCache = new WeakSet()
     this.stopDocumentTitleTracking()
+    resetTranslationProgress()
 
     if (this.intersectionObserver) {
       this.intersectionObserver.disconnect()
@@ -187,64 +183,6 @@ export class PageTranslationManager implements IPageTranslationManager {
     this.mutationObservers = []
 
     void removeAllTranslatedWrapperNodes()
-  }
-
-  registerPageTranslationTriggers(): () => void {
-    let startTime = 0
-    let startTouches: TouchList | null = null
-
-    const reset = () => {
-      startTime = 0
-      startTouches = null
-    }
-
-    const onStart = (e: TouchEvent) => {
-      if (e.touches.length === 4) {
-        startTime = performance.now()
-        startTouches = e.touches
-      }
-      else {
-        reset()
-      }
-    }
-
-    const onMove = (e: TouchEvent) => {
-      if (!startTouches)
-        return
-      if (e.touches.length !== 4)
-        return reset()
-
-      for (let i = 0; i < 4; i++) {
-        const dx = e.touches[i].clientX - startTouches[i].clientX
-        const dy = e.touches[i].clientY - startTouches[i].clientY
-        if (dx * dx + dy * dy > PageTranslationManager.MOVE_THRESHOLD)
-          return reset()
-      }
-    }
-
-    const onEnd = () => {
-      if (!startTouches)
-        return
-      if (performance.now() - startTime < PageTranslationManager.MAX_DURATION) {
-        this.isPageTranslating
-          ? this.stop()
-          : void this.start()
-      }
-      reset()
-    }
-
-    document.addEventListener("touchstart", onStart, { passive: true })
-    document.addEventListener("touchmove", onMove, { passive: true })
-    document.addEventListener("touchend", onEnd, { passive: true })
-    document.addEventListener("touchcancel", reset, { passive: true })
-
-    // Teardown: remove all touch listeners
-    return () => {
-      document.removeEventListener("touchstart", onStart)
-      document.removeEventListener("touchmove", onMove)
-      document.removeEventListener("touchend", onEnd)
-      document.removeEventListener("touchcancel", reset)
-    }
   }
 
   private shouldManageDocumentTitle(): boolean {

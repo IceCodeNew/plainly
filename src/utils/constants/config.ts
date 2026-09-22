@@ -21,10 +21,6 @@ export const DEFAULT_CONFIG: Config = {
   translate: {
     providerId: "openai-default",
     mode: "bilingual",
-    node: {
-      enabled: false,
-      hotkey: "control",
-    },
     page: {
       range: "all",
       shortcut: DEFAULT_AUTO_TRANSLATE_SHORTCUT_KEY,

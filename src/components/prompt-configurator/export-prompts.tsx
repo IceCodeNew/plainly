@@ -1,36 +1,22 @@
-import { Icon } from "@iconify/react"
-import { useAtom, useAtomValue, useSetAtom } from "jotai"
+import { useAtomValue } from "jotai"
 import { i18n } from "#imports"
-import { Button } from "@/components/ui/base-ui/button"
 import { usePromptAtoms } from "./context"
 import { downloadJSONFile } from "./utils/prompt-file"
 
+/** Downloads every custom prompt as one JSON file. */
 export function ExportPrompts() {
   const promptAtoms = usePromptAtoms()
   const config = useAtomValue(promptAtoms.config)
-  const [selectedPrompts, setSelectedPrompts] = useAtom(promptAtoms.selectedPrompts)
-  const setIsExportMode = useSetAtom(promptAtoms.exportMode)
-
-  const patterns = config.patterns
-
-  const sortOutDownloadPrompts = patterns
-    .filter(pattern => selectedPrompts.includes(pattern.id))
-    .map((pattern) => {
-      const { id, ...patternWithoutId } = pattern
-      return patternWithoutId
-    })
+  const exportable = config.patterns.map(({ id: _id, ...pattern }) => pattern)
 
   return (
-    <Button
-      onClick={() => {
-        downloadJSONFile(sortOutDownloadPrompts)
-        setIsExportMode(false)
-        setSelectedPrompts([])
-      }}
-      disabled={!selectedPrompts.length}
+    <button
+      type="button"
+      disabled={exportable.length === 0}
+      onClick={() => downloadJSONFile(exportable)}
+      className="cursor-pointer text-muted-foreground hover:text-foreground hover:underline disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:no-underline"
     >
-      <Icon icon="tabler:check" className="size-4" />
-      {i18n.t("options.translation.personalizedPrompts.exportPrompt.exportSelected")}
-    </Button>
+      {i18n.t("options.quality.prompts.export")}
+    </button>
   )
 }

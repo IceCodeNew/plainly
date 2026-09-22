@@ -1,12 +1,8 @@
 import type { PromptConfigList } from "./utils/prompt-file"
-import { Icon } from "@iconify/react/dist/iconify.js"
 import { useAtom } from "jotai"
 import { useId } from "react"
 import { toast } from "sonner"
 import { i18n } from "#imports"
-import { Button } from "@/components/ui/base-ui/button"
-import { Input } from "@/components/ui/base-ui/input"
-import { Label } from "@/components/ui/base-ui/label"
 import { getRandomUUID } from "@/utils/crypto-polyfill"
 import { usePromptAtoms } from "./context"
 import { analysisJSONFile } from "./utils/prompt-file"
@@ -17,7 +13,6 @@ export function ImportPrompts() {
   const inputId = useId()
 
   const injectPrompts = (list: PromptConfigList) => {
-    const originPatterns = config.patterns
     const patterns = list.map(item => ({
       ...item,
       id: getRandomUUID(),
@@ -27,46 +22,38 @@ export function ImportPrompts() {
 
     setConfig({
       ...config,
-      patterns: [...originPatterns, ...patterns],
+      patterns: [...config.patterns, ...patterns],
     })
   }
 
-  const importPrompts = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const importPrompts = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
-      const files = e.target.files
-      if (!files || !files[0])
+      const file = event.target.files?.[0]
+      if (!file)
         return
-      const promptConfig = await analysisJSONFile(files[0])
-      injectPrompts(promptConfig)
-      toast.success(`${i18n.t("options.translation.personalizedPrompts.importSuccess")} !`)
+      injectPrompts(await analysisJSONFile(file))
+      toast.success(i18n.t("options.quality.prompts.importSuccess"))
     }
     catch (error) {
-      if (error instanceof Error) {
-        toast.error(error.message)
-      }
-      else {
-        toast.error("Something went error when importing")
-      }
+      toast.error(error instanceof Error ? error.message : i18n.t("options.quality.prompts.importFailed"))
     }
     finally {
-      e.target.value = ""
-      e.target.files = null
+      event.target.value = ""
     }
   }
 
   return (
-    <Button variant="outline" className="p-0">
-      <Label htmlFor={inputId} className="w-full px-3">
-        <Icon icon="tabler:file-import" className="size-4" />
-        {i18n.t("options.translation.personalizedPrompts.import")}
-      </Label>
-      <Input
+    <>
+      <label htmlFor={inputId} className="cursor-pointer text-muted-foreground hover:text-foreground hover:underline">
+        {i18n.t("options.quality.prompts.import")}
+      </label>
+      <input
         type="file"
         id={inputId}
         className="hidden"
         accept=".json"
-        onChange={importPrompts}
+        onChange={event => void importPrompts(event)}
       />
-    </Button>
+    </>
   )
 }

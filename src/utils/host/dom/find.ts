@@ -1,64 +1,8 @@
-import type { Point } from "@/types/dom"
-
 import { getLocalConfig } from "@/utils/config/storage"
 import { DEFAULT_CONFIG } from "@/utils/constants/config"
 import { CONTENT_WRAPPER_CLASS } from "@/utils/constants/dom-labels"
 import { isDontWalkIntoAndDontTranslateAsChildElement, isHTMLElement, isShallowInlineHTMLElement, isTranslatedContentNode, isTranslatedWrapperNode } from "./filter"
 import { smashTruncationStyle } from "./style"
-
-/**
- * Find the deepest element at the given point, including inside shadow roots
- * @param root - The root element (Document or ShadowRoot)
- * @param point - The point to find the deepest element
- */
-function findElementAt(root: Document | ShadowRoot, point: Point): Element | null {
-  const { x, y } = point
-
-  // First, try to get the element at the point from the root
-  const initialElement = root.elementFromPoint(x, y)
-  if (!initialElement) {
-    return null
-  }
-
-  // If the initial element has a shadow root, check if the point is actually inside the shadow content
-  if (initialElement.shadowRoot) {
-    const shadowElement = findElementAt(initialElement.shadowRoot, point)
-    if (shadowElement) {
-      return shadowElement
-    }
-  }
-
-  // Find the deepest element by traversing children
-  function findDeepestElement(element: Element): Element {
-    let deepestElement = element
-
-    for (const child of element.children) {
-      if (isHTMLElement(child)) {
-        const rect = child.getBoundingClientRect()
-        const isPointInChild = x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom
-
-        if (isPointInChild) {
-          // If child has shadow root, recursively search within it
-          if (child.shadowRoot) {
-            const shadowResult = findElementAt(child.shadowRoot, point)
-            if (shadowResult) {
-              return shadowResult
-            }
-          }
-
-          // Continue searching deeper in this child
-          deepestElement = findDeepestElement(child)
-          if (deepestElement.textContent?.trim())
-            return deepestElement
-        }
-      }
-    }
-
-    return deepestElement
-  }
-
-  return findDeepestElement(initialElement)
-}
 
 export function findNearestAncestorBlockNodeFor(element: Element) {
   const startElement = element.closest(`.${CONTENT_WRAPPER_CLASS}`)?.parentElement || element
@@ -67,18 +11,6 @@ export function findNearestAncestorBlockNodeFor(element: Element) {
     currentNode = currentNode.parentElement
   }
   return currentNode
-}
-
-/**
- * Find the nearest block node from the point
- * @param point - The point to find the nearest block node
- */
-export function findNearestAncestorBlockNodeAt(point: Point) {
-  const currentNode = findElementAt(document, point)
-  if (!currentNode)
-    return null
-
-  return findNearestAncestorBlockNodeFor(currentNode)
 }
 
 export function deepQueryTopLevelSelector(element: HTMLElement | ShadowRoot | Document, selectorFn: (element: HTMLElement) => boolean): HTMLElement[] {

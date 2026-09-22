@@ -7,7 +7,7 @@ import { ensureInitializedConfig } from "./config"
 import { cleanupAllSummaryCache, cleanupAllTranslationCache, setUpDatabaseCleanup } from "./db-cleanup"
 import { setupIframeInjection } from "./iframe-injection"
 import { setupLLMGenerateTextMessageHandlers } from "./llm-generate-text"
-import { proxyFetch } from "./proxy-fetch"
+import { setupTranslationProgress } from "./translation-progress"
 import { setUpWebPageTranslationQueue } from "./translation-queues"
 import { translationMessage } from "./translation-signal"
 
@@ -35,11 +35,11 @@ export default defineBackground({
     })
 
     translationMessage()
+    setupTranslationProgress()
 
     void setUpWebPageTranslationQueue()
     void setUpDatabaseCleanup()
 
-    proxyFetch()
     setupLLMGenerateTextMessageHandlers()
 
     // Setup on-demand iframe injection after page translation is enabled.

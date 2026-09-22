@@ -1,6 +1,5 @@
 import type { TranslatePromptObj } from "@/types/config/translate"
-import { Icon } from "@iconify/react"
-import { useAtom, useAtomValue } from "jotai"
+import { useAtom } from "jotai"
 import { useState } from "react"
 import { i18n } from "#imports"
 import { Button } from "@/components/ui/base-ui/button"
@@ -18,128 +17,104 @@ import {
 import { QuickInsertableTextarea } from "@/components/ui/insertable-textarea"
 import { DEFAULT_TRANSLATE_PROMPT_ID } from "@/utils/constants/prompt"
 import { getRandomUUID } from "@/utils/crypto-polyfill"
-import { cn } from "@/utils/styles/utils"
 import { usePromptAtoms, usePromptInsertCells } from "./context"
 
-export function ConfigurePrompt({
-  originPrompt,
-  className,
-  ...props
-}: {
-  originPrompt?: TranslatePromptObj
-  className?: string
-} & React.ComponentProps<"button">) {
+const TEXT_TRIGGER_CLASS = "cursor-pointer text-muted-foreground hover:text-foreground hover:underline"
+
+/**
+ * Sheet that creates or edits one prompt. With no `originPrompt` it creates;
+ * the default prompt opens read-only.
+ */
+export function ConfigurePrompt({ originPrompt }: { originPrompt?: TranslatePromptObj }) {
   const promptAtoms = usePromptAtoms()
   const insertCells = usePromptInsertCells()
   const [config, setConfig] = useAtom(promptAtoms.config)
-  const isExportMode = useAtomValue(promptAtoms.exportMode)
 
   const inEdit = !!originPrompt
   const isDefault = originPrompt?.id === DEFAULT_TRANSLATE_PROMPT_ID
 
-  const defaultPrompt = { id: getRandomUUID(), name: "", systemPrompt: "", prompt: "" }
-  const initialPrompt = originPrompt ?? defaultPrompt
-
-  const [prompt, setPrompt] = useState<TranslatePromptObj>(initialPrompt)
-
-  const resetPrompt = () => {
-    setPrompt(originPrompt ?? defaultPrompt)
-  }
+  const createDraft = (): TranslatePromptObj => originPrompt ?? { id: getRandomUUID(), name: "", systemPrompt: "", prompt: "" }
+  const [prompt, setPrompt] = useState<TranslatePromptObj>(createDraft)
 
   const sheetTitle = isDefault
-    ? i18n.t("options.translation.personalizedPrompts.default")
+    ? i18n.t("options.quality.prompts.default")
     : inEdit
-      ? i18n.t("options.translation.personalizedPrompts.editPrompt.title")
-      : i18n.t("options.translation.personalizedPrompts.addPrompt")
+      ? i18n.t("options.quality.prompts.editor.editTitle")
+      : i18n.t("options.quality.prompts.editor.newTitle")
 
-  const clearCachePrompt = () => {
-    setPrompt({
-      id: getRandomUUID(),
-      name: "",
-      systemPrompt: "",
-      prompt: "",
-    })
-  }
+  const triggerLabel = isDefault
+    ? i18n.t("options.quality.prompts.view")
+    : inEdit
+      ? i18n.t("options.quality.prompts.edit")
+      : i18n.t("options.quality.prompts.new")
 
-  const configurePrompt = () => {
-    const _patterns = config.patterns
-
+  const save = () => {
     setConfig({
       ...config,
       patterns: inEdit
-        ? _patterns.map(p => p.id === prompt.id ? prompt : p)
-        : [..._patterns, prompt],
+        ? config.patterns.map(p => p.id === prompt.id ? prompt : p)
+        : [...config.patterns, prompt],
     })
-
-    clearCachePrompt()
   }
 
   return (
     <Sheet onOpenChange={(open) => {
-      if (open) {
-        resetPrompt()
-      }
+      if (open)
+        setPrompt(createDraft())
     }}
     >
-      {inEdit
-        ? (
-            <SheetTrigger render={<Button variant="ghost" className={cn("size-8", className)} disabled={isExportMode} {...props} />}>
-              <Icon icon={isDefault ? "tabler:eye" : "tabler:pencil"} className="size-4" />
-            </SheetTrigger>
-          )
-        : (
-            <SheetTrigger render={<Button className={className} {...props} />}>
-              <Icon icon="tabler:plus" className="size-4" />
-              {i18n.t("options.translation.personalizedPrompts.addPrompt")}
-            </SheetTrigger>
-          )}
+      <SheetTrigger
+        render={(
+          <button
+            type="button"
+            className={inEdit ? TEXT_TRIGGER_CLASS : "cursor-pointer text-link hover:underline"}
+          />
+        )}
+      >
+        {triggerLabel}
+      </SheetTrigger>
       <SheetContent className="w-[400px] sm:w-[500px] sm:max-w-none">
         <SheetHeader>
           <SheetTitle>{sheetTitle}</SheetTitle>
         </SheetHeader>
         <FieldGroup className="flex-1 overflow-y-auto px-4">
           <Field>
-            <FieldLabel htmlFor="prompt-name">{i18n.t("options.translation.personalizedPrompts.editPrompt.name")}</FieldLabel>
+            <FieldLabel htmlFor="prompt-name">{i18n.t("options.quality.prompts.editor.name")}</FieldLabel>
             <Input
               id="prompt-name"
               value={prompt.name}
               disabled={isDefault}
-              onChange={(e) => {
-                setPrompt({
-                  ...prompt,
-                  name: e.target.value,
-                })
-              }}
+              onChange={event => setPrompt({ ...prompt, name: event.target.value })}
             />
           </Field>
           <Field>
-            <FieldLabel htmlFor="system-prompt">{i18n.t("options.translation.personalizedPrompts.editPrompt.systemPrompt")}</FieldLabel>
+            <FieldLabel htmlFor="system-prompt">{i18n.t("options.quality.prompts.editor.systemPrompt")}</FieldLabel>
             <QuickInsertableTextarea
               value={prompt.systemPrompt}
               className="min-h-40 max-h-80"
               disabled={isDefault}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setPrompt({ ...prompt, systemPrompt: e.target.value })}
+              onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setPrompt({ ...prompt, systemPrompt: event.target.value })}
               insertCells={insertCells}
             />
           </Field>
           <Field>
-            <FieldLabel htmlFor="prompt">{i18n.t("options.translation.personalizedPrompts.editPrompt.prompt")}</FieldLabel>
+            <FieldLabel htmlFor="prompt">{i18n.t("options.quality.prompts.editor.prompt")}</FieldLabel>
             <QuickInsertableTextarea
               value={prompt.prompt}
               className="max-h-60"
               disabled={isDefault}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setPrompt({ ...prompt, prompt: e.target.value })}
+              onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setPrompt({ ...prompt, prompt: event.target.value })}
               insertCells={insertCells}
             />
           </Field>
         </FieldGroup>
         {!isDefault && (
           <SheetFooter>
-            <SheetClose render={<Button onClick={configurePrompt} />}>
-              {i18n.t("options.translation.personalizedPrompts.editPrompt.save")}
+            <SheetClose render={<Button onClick={save} disabled={!prompt.name.trim()} />}>
+              {i18n.t("options.quality.prompts.editor.save")}
             </SheetClose>
             <SheetClose render={<Button variant="outline" />}>
-              {i18n.t("options.translation.personalizedPrompts.editPrompt.close")}
+              {i18n.t("options.quality.prompts.editor.cancel")}
             </SheetClose>
           </SheetFooter>
         )}

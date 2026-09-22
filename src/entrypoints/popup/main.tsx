@@ -1,6 +1,8 @@
 import "@/utils/zod-config"
+import type { ActiveTabInfo } from "./atoms"
 import type { Config } from "@/types/config/config"
 import type { ThemeMode } from "@/types/config/theme"
+import type { TranslationProgress } from "@/types/translation-progress"
 import { QueryClientProvider } from "@tanstack/react-query"
 import { Provider as JotaiProvider } from "jotai"
 import { useHydrateAtoms } from "jotai/utils"
@@ -19,8 +21,7 @@ import { renderPersistentReactRoot } from "@/utils/react-root"
 import { queryClient } from "@/utils/tanstack-query"
 import { getLocalThemeMode } from "@/utils/theme"
 import App from "./app"
-import { isPageTranslatedAtom } from "./atoms/auto-translate"
-import { isIgnoreTabAtom, isIgnoreUrl } from "./atoms/ignore"
+import { activeTabAtom, isTranslatableUrl, pageTranslationEnabledAtom, translationProgressAtom } from "./atoms"
 import "@/assets/styles/text-small.css"
 import "@/assets/styles/theme.css"
 
@@ -30,9 +31,10 @@ function HydrateAtoms({
 }: {
   initialValues: [
     [typeof configAtom, Config],
-    [typeof isPageTranslatedAtom, boolean],
-    [typeof isIgnoreTabAtom, boolean],
     [typeof baseThemeModeAtom, ThemeMode],
+    [typeof activeTabAtom, ActiveTabInfo],
+    [typeof pageTranslationEnabledAtom, boolean],
+    [typeof translationProgressAtom, TranslationProgress | null],
   ]
   children: React.ReactNode
 }) {
@@ -42,30 +44,32 @@ function HydrateAtoms({
 
 async function initApp() {
   const root = document.getElementById("root")!
-  root.className = "text-base antialiased w-[320px] bg-background"
+  root.className = "text-base antialiased w-[320px] bg-background text-foreground"
 
-  const [configValue, themeMode, activeTab] = await Promise.all([
+  const [configValue, themeMode, [activeTab]] = await Promise.all([
     getLocalConfig(),
     getLocalThemeMode(),
-    browser.tabs.query({
-      active: true,
-      currentWindow: true,
-    }),
+    browser.tabs.query({ active: true, currentWindow: true }),
   ])
   const config = configValue ?? DEFAULT_CONFIG
 
-  const tabId = activeTab[0].id
-
-  let isPageTranslated: boolean = false
-  if (tabId) {
-    isPageTranslated
-      = (await sendMessage("getEnablePageTranslationByTabId", {
-        tabId,
-      })) ?? false
+  const tabId = activeTab?.id ?? null
+  const tabInfo: ActiveTabInfo = {
+    id: tabId,
+    url: activeTab?.url ?? "",
+    translatable: isTranslatableUrl(activeTab?.url),
   }
 
-  const activeTabUrl = activeTab[0]?.url || ""
-  const isIgnoreTab = isIgnoreUrl(activeTabUrl)
+  let enabled = false
+  let progress: TranslationProgress | null = null
+  if (tabId !== null) {
+    const [enabledResult, progressResult] = await Promise.all([
+      sendMessage("getEnablePageTranslationByTabId", { tabId }).catch(() => false),
+      sendMessage("getTranslationProgressByTabId", { tabId }).catch(() => null),
+    ])
+    enabled = enabledResult ?? false
+    progress = progressResult ?? null
+  }
 
   renderPersistentReactRoot(root, (
     <React.StrictMode>
@@ -74,9 +78,10 @@ async function initApp() {
           <HydrateAtoms
             initialValues={[
               [configAtom, config],
-              [isPageTranslatedAtom, isPageTranslated],
-              [isIgnoreTabAtom, isIgnoreTab],
               [baseThemeModeAtom, themeMode],
+              [activeTabAtom, tabInfo],
+              [pageTranslationEnabledAtom, enabled],
+              [translationProgressAtom, progress],
             ]}
           >
             <ThemeProvider>

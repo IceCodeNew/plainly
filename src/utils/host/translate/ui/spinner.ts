@@ -8,6 +8,7 @@ import { TRANSLATION_ERROR_CONTAINER_CLASS } from "../../../constants/dom-labels
 import { getContainingShadowRoot, getOwnerDocument } from "../../dom/node"
 import { translateTextForPage } from "../translate-variants"
 import { ensurePresetStyles } from "./style-injector"
+import { trackTranslationFinished, trackTranslationStarted } from "./translation-progress"
 
 /**
  * Create a lightweight spinner element without React/Shadow DOM overhead
@@ -75,6 +76,7 @@ export function createSpinnerInside(translatedWrapperNode: HTMLElement): HTMLEle
   ensurePresetStyles(root)
   const spinner = createLightweightSpinner(ownerDoc)
   translatedWrapperNode.appendChild(spinner)
+  trackTranslationStarted()
   return spinner
 }
 
@@ -85,9 +87,11 @@ export async function getTranslatedTextAndRemoveSpinner(
   translatedWrapperNode: HTMLElement,
 ): Promise<string | undefined> {
   let translatedText: string | undefined
+  let succeeded = false
 
   try {
     translatedText = await translateTextForPage(textContent)
+    succeeded = true
   }
   catch (error) {
     const errorComponent = React.createElement(TranslationError, {
@@ -112,6 +116,7 @@ export async function getTranslatedTextAndRemoveSpinner(
   }
   finally {
     spinner.remove()
+    trackTranslationFinished(succeeded)
   }
 
   return translatedText

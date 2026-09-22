@@ -1,9 +1,6 @@
 import type { AllProviderTypes, APIProviderTypes, LLMProviderModels, ProviderConfig, ProvidersConfig } from "@/types/config/provider"
-import type { Theme } from "@/types/config/theme"
-import customProviderLogo from "@/assets/providers/custom-provider.svg?url&no-inline"
-import { API_PROVIDER_TYPES, CUSTOM_LLM_PROVIDER_TYPES, NON_CUSTOM_LLM_PROVIDER_TYPES, TRANSLATE_PROVIDER_TYPES } from "@/types/config/provider"
+import { API_PROVIDER_TYPES, TRANSLATE_PROVIDER_TYPES } from "@/types/config/provider"
 import { pick } from "@/types/utils"
-import { getLobeIconsCDNUrlFn } from "../logo"
 
 export const DEFAULT_LLM_PROVIDER_MODELS: LLMProviderModels = {
   "openai-compatible": {
@@ -23,24 +20,30 @@ export const DEFAULT_LLM_PROVIDER_MODELS: LLMProviderModels = {
   },
 }
 
-export const PROVIDER_ITEMS: Record<AllProviderTypes, { logo: (theme: Theme) => string, name: string, website: string }>
-  = {
-    "openai-compatible": {
-      logo: () => customProviderLogo,
-      name: "Custom Provider",
-      website: "",
-    },
-    "openai": {
-      logo: getLobeIconsCDNUrlFn("openai"),
-      name: "OpenAI",
-      website: "https://platform.openai.com",
-    },
-    "deepseek": {
-      logo: getLobeIconsCDNUrlFn("deepseek-color"),
-      name: "DeepSeek",
-      website: "https://platform.deepseek.com",
-    },
-  }
+export interface ProviderItem {
+  name: string
+  /** One or two characters drawn in the provider mark; no remote logo is fetched. */
+  monogram: string
+  website: string
+}
+
+export const PROVIDER_ITEMS: Record<AllProviderTypes, ProviderItem> = {
+  "openai-compatible": {
+    name: "Custom Provider",
+    monogram: "AI",
+    website: "",
+  },
+  "openai": {
+    name: "OpenAI",
+    monogram: "O",
+    website: "https://platform.openai.com",
+  },
+  "deepseek": {
+    name: "DeepSeek",
+    monogram: "D",
+    website: "https://platform.deepseek.com",
+  },
+}
 
 export const DEFAULT_PROVIDER_CONFIG = {
   "openai-compatible": {
@@ -78,20 +81,10 @@ export const TRANSLATE_PROVIDER_ITEMS = pick(
   TRANSLATE_PROVIDER_TYPES,
 )
 
-export const LLM_PROVIDER_ITEMS = TRANSLATE_PROVIDER_ITEMS
-
 export const API_PROVIDER_ITEMS = pick(
   PROVIDER_ITEMS,
   API_PROVIDER_TYPES,
 )
 
-export const PROVIDER_GROUPS = {
-  builtInProviders: {
-    types: NON_CUSTOM_LLM_PROVIDER_TYPES,
-    tutorialSlug: "built-in-providers",
-  },
-  openaiCompatibleProviders: {
-    types: CUSTOM_LLM_PROVIDER_TYPES,
-    tutorialSlug: "openai-compatible-providers",
-  },
-} as const satisfies Record<string, { types: readonly APIProviderTypes[], tutorialSlug: string }>
+/** Order providers are offered in the "add a service" menu. */
+export const ADDABLE_PROVIDER_TYPES: readonly APIProviderTypes[] = ["openai", "deepseek", "openai-compatible"]

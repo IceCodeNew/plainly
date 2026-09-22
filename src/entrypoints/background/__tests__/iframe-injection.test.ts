@@ -303,46 +303,4 @@ describe("setupIframeInjection", () => {
     await onCompleted(details)
     expect(executeScriptMock).toHaveBeenCalledTimes(3)
   })
-
-  it("injects current tab iframes after top-frame node translation even when page translation is disabled", async () => {
-    const { injectHostContentIntoCurrentTabIframesAfterNodeTranslation } = await import("../iframe-injection")
-    storageGetItemMock.mockResolvedValue({ enabled: false })
-    getAllFramesMock.mockResolvedValue([
-      createFrame(0, "https://example.com/app", -1),
-      createFrame(2, "https://example.com/frame-a"),
-      createFrame(3, "https://example.com/frame-b"),
-    ])
-
-    await injectHostContentIntoCurrentTabIframesAfterNodeTranslation(currentTabId)
-
-    const calls = executeScriptMock.mock.calls.map(([call]) => call)
-    expect(executeScriptMock).toHaveBeenCalledTimes(2)
-    expect(calls).toEqual(expect.arrayContaining([expect.objectContaining({
-      target: { tabId: currentTabId, frameIds: [2] },
-      files: [HOST_CONTENT_SCRIPT_FILE],
-    })]))
-    expect(calls).toEqual(expect.arrayContaining([expect.objectContaining({
-      target: { tabId: currentTabId, frameIds: [3] },
-      files: [HOST_CONTENT_SCRIPT_FILE],
-    })]))
-  })
-
-  it("does not enable late iframe injection after top-frame node activation", async () => {
-    const { onCompleted } = await setupSubject()
-    const { injectHostContentIntoCurrentTabIframesAfterNodeTranslation } = await import("../iframe-injection")
-    storageGetItemMock.mockResolvedValue({ enabled: false })
-
-    await injectHostContentIntoCurrentTabIframesAfterNodeTranslation(currentTabId)
-    executeScriptMock.mockClear()
-    getAllFramesMock.mockClear()
-
-    await onCompleted(createDetails({
-      frameId: 4,
-      documentId: "doc-late",
-      url: "https://example.com/late-frame",
-    }))
-
-    expect(getAllFramesMock).not.toHaveBeenCalled()
-    expect(executeScriptMock).not.toHaveBeenCalled()
-  })
 })

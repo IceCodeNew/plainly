@@ -152,7 +152,7 @@ export function validateTranslationConfigAndToast(
 
   // check if the API key is configured
   if (isAPIProviderConfig(providerConfig) && !providerConfig.apiKey?.trim()) {
-    toast.error(i18n.t("noAPIKeyConfig.warning"))
+    toast.error(i18n.t("translation.noApiKey"))
     logger.info("validateTranslationConfig: returning false (no API key)")
     return false
   }
