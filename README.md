@@ -1,60 +1,31 @@
-# Vibe Reading
+# Plainly
 
-Vibe Reading is a browser extension for reading and translating web pages with
-local configuration and user-provided AI or translation providers.
+素读 · [中文](./README.zh-CN.md)
 
-This fork is intentionally narrow: **reading only**. It keeps the full-page
-reading and translation workflow, removes the product-suite features around it,
-and does not depend on a project-hosted backend. Features that need a network
-service, such as AI translation, use the provider endpoints and API keys
-configured by the user.
+Plainly translates the web page you are reading, and does nothing else.
 
-## Features
+The translation sits under each paragraph, or replaces the original if you
+prefer. Settings stay in your browser. Text goes straight to the model provider
+you configure. There is no Plainly server, no account, and no telemetry.
 
-- 📖 Reading-first full-page translation.
-- Full-page translation with bilingual and translation-only display modes.
-- Paragraph and page-title translation for content-heavy pages.
-- LLM-based language detection for auto-translate and skip-language rules.
-- Context-aware AI translation using page content and summaries.
-- Configurable AI and translation providers, including local or self-hosted
-  provider endpoints.
-- Custom prompts, translation styles, page rules, and batch/rate controls.
-- No Notebase, hosted account, config backup, telemetry dashboard, or project
-  backend dependency.
+## What It Does
 
-## Proudly Missing
+- Translates the whole page, including its title, in bilingual or
+  translation-only mode.
+- Works with OpenAI, DeepSeek, or any OpenAI-compatible endpoint, including
+  local and self-hosted models.
+- Can give the model a summary of the page, so translations fit the context.
+- Lets you adjust the prompt, translation style, request rate, and batching.
 
-Vibe Reading is smaller on purpose. Compared with the upstream Read Frog project,
-Immersive Translate-style translation suites, browser built-in translators, and
-general AI sidebar tools, this fork proudly avoids features that distract from
-reading.
+## What It Leaves Out
 
-| Product or category                              | What they often include                         | What Vibe Reading proudly does not include                   | What Vibe Reading keeps                  |
-| ------------------------------------------------ | ----------------------------------------------- | ------------------------------------------------------------ | ---------------------------------------- |
-| 🐸 Upstream Read Frog                            | Learning tools, hosted integrations, more modes | Notebase, hosted storage, Custom AI Actions, Beta Experience | Focused page reading and translation     |
-| 🌊 Immersive Translate-style translation suites  | Broad translation surfaces across many media    | Video subtitles, input translation, overlay tools, TTS       | Web page reading translation             |
-| 🌐 Browser built-in translators                  | Simple automatic page translation               | Browser-account coupling, opaque provider choice             | User-selected providers and local config |
-| 🤖 General AI sidebar or assistant extensions    | Chat, writing, summarizing, action panels       | General AI workspace, prompt launcher, assistant overlay     | Translation prompts for reading context  |
-| 📊 Productivity or telemetry-heavy browser tools | Dashboards, usage statistics, sync accounts     | Statistics, config backup, telemetry dashboard               | Local-only settings                      |
+Plainly began as a fork of [Read Frog](https://github.com/mengxi-ream/read-frog)
+and removed everything that is not reading a page: video subtitles, input box
+translation, floating toolbars, text to speech, custom AI actions, hosted
+storage and accounts, config sync, statistics, and experimental switches.
 
-## Removed Upstream Features
-
-| Removed capability                                     | Why it is absent                                                                          |
-| ------------------------------------------------------ | ----------------------------------------------------------------------------------------- |
-| 🗄️ Notebase hosted storage and backend-backed features | Vibe Reading does not rely on a project-hosted backend.                                   |
-| 🧠 Custom AI Actions                                   | This fork is not a general AI action launcher.                                            |
-| 🎬 Video Subtitles                                     | Video translation is outside the reading-only scope.                                      |
-| ⌨️ Input Translation                                   | Vibe Reading avoids modifying text input workflows.                                       |
-| 🧰 Overlay Tools                                       | Less overlay UI means fewer distractions on reading pages.                                |
-| 🔊 Text to Speech                                      | Audio playback is outside the reading-only scope.                                         |
-| 🔗 translation-hub                                     | No bundled upstream hub integration.                                                      |
-| ☁️ Config Backup                                       | Vibe Reading keeps settings local and has no config sync, backup, import, or export flow. |
-| 🧪 Beta Experience                                     | Experimental feature gates are removed.                                                   |
-| 🚦 Extension Activation Mode                           | Page translation is controlled by direct translation actions and page rules.              |
-| 📈 Statistics                                          | No local statistics dashboard or charting dependency.                                     |
-| 🌍 Language Detection mode setting                     | Language detection always follows the LLM path; there is no basic/LLM mode knob.          |
-
-The result is deliberately simple: **Vibe Reading is for reading.**
+If you need those, Read Frog and similar tools do them well. Plainly stays
+small so that the page stays quiet.
 
 ## Development
 
@@ -65,14 +36,11 @@ pnpm type-check
 pnpm build
 ```
 
-## License And Attribution
+## License
 
-Vibe Reading is a modified fork of
-[Read Frog](https://github.com/mengxi-ream/read-frog). Thanks to the Read Frog
-authors and contributors for the original GPL-licensed work.
+Plainly is a modified version of Read Frog. Thanks to the Read Frog authors and
+contributors for the original work.
 
-This project is distributed under the GNU General Public License version 3. See
-[LICENSE](./LICENSE) for the full license text. As a modified version, Vibe
-Reading preserves the GPLv3 terms, keeps the source available under the same
-license, and marks the work as changed so issues in this fork are not attributed
-to the upstream project.
+Plainly is distributed under the GNU General Public License version 3, the same
+license as upstream. See [LICENSE](./LICENSE). Please report problems here
+rather than to the Read Frog project.
