@@ -1,6 +1,6 @@
-name: Vibe Reading
-extName: Vibe Reading - Dịch và học
-extDescription: Vibe Reading là tiện ích mở rộng trình duyệt mã nguồn mở được thiết kế để giúp bạn học ngôn ngữ sâu từ bất kỳ trang web nào.
+name: Plainly
+extName: Plainly - Dịch và học
+extDescription: Plainly là tiện ích mở rộng trình duyệt mã nguồn mở được thiết kế để giúp bạn học ngôn ngữ sâu từ bất kỳ trang web nào.
 dataTypes:
   string: Văn bản
   number: Số
@@ -230,7 +230,7 @@ options:
         editor:
           placeholder: |
             /* Ví dụ: Kiểu tùy chỉnh với màu sắc và nền */
-            [data-vibe-reading-custom-translation-style='custom'] {
+            [data-plainly-custom-translation-style='custom'] {
               color: #414535;
               background-color: light-dark(#F2E3BC, #C19875);
               padding: 2px 4px;
@@ -293,8 +293,8 @@ options:
     title: Cấu hình
     about:
       title: Giới thiệu
-      description: Vibe Reading ra đời vào tháng 4 năm 2025
-      mission: Vibe Reading hướng tới việc mở rộng cơ hội tiếp cận bình đẳng với giáo dục chất lượng cao trong thời đại AI bằng cách mang lại trải nghiệm học tập gần với cảm giác được giáo viên thật hướng dẫn, nhưng với chi phí hợp lý hơn trong học ngôn ngữ, y học và các lĩnh vực giàu tri thức khác.
+      description: Plainly ra đời vào tháng 4 năm 2025
+      mission: Plainly hướng tới việc mở rộng cơ hội tiếp cận bình đẳng với giáo dục chất lượng cao trong thời đại AI bằng cách mang lại trải nghiệm học tập gần với cảm giác được giáo viên thật hướng dẫn, nhưng với chi phí hợp lý hơn trong học ngôn ngữ, y học và các lĩnh vực giàu tri thức khác.
     resetConfig:
       title: Đặt lại cấu hình
       description: Đặt lại tất cả cấu hình về giá trị mặc định

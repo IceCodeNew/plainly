@@ -1,6 +1,6 @@
-name: Vibe Reading
-extName: "Vibe Reading - Translate & Learn"
-extDescription: Vibe Reading is an open source browser extension designed to help you learn languages deeply from any website.
+name: Plainly
+extName: "Plainly - Translate & Learn"
+extDescription: Plainly is an open source browser extension designed to help you learn languages deeply from any website.
 dataTypes:
   string: Text
   number: Number
@@ -231,7 +231,7 @@ options:
         editor:
           placeholder: |
             /* Example: Custom style with color and background */
-            [data-vibe-reading-custom-translation-style='custom'] {
+            [data-plainly-custom-translation-style='custom'] {
               color: #414535;
               background-color: light-dark(#F2E3BC, #C19875);
               padding: 2px 4px;
@@ -294,8 +294,8 @@ options:
     title: Config
     about:
       title: About
-      description: Vibe Reading was born in April 2025
-      mission: Vibe Reading aims to expand equal access to high-quality education in the AI era by making learning experiences that feel closer to a real teacher affordable across language learning, medicine, and other knowledge-heavy fields.
+      description: Plainly was born in April 2025
+      mission: Plainly aims to expand equal access to high-quality education in the AI era by making learning experiences that feel closer to a real teacher affordable across language learning, medicine, and other knowledge-heavy fields.
     resetConfig:
       title: Reset Config
       description: Reset all config to default value

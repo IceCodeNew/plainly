@@ -1,6 +1,6 @@
-name: 読書カエル
-extName: 読書カエル - 翻訳して学ぶ
-extDescription: 読書カエルは、あらゆるウェブサイトから言語を深く学ぶために設計されたオープンソースのブラウザ拡張機能です。
+name: 素読
+extName: 素読 - 翻訳して学ぶ
+extDescription: 素読は、あらゆるウェブサイトから言語を深く学ぶために設計されたオープンソースのブラウザ拡張機能です。
 dataTypes:
   string: テキスト
   number: 数値
@@ -230,7 +230,7 @@ options:
         editor:
           placeholder: |
             /* 例：カスタムカラーと背景のスタイル */
-            [data-vibe-reading-custom-translation-style='custom'] {
+            [data-plainly-custom-translation-style='custom'] {
               color: #414535;
               background-color: light-dark(#F2E3BC, #C19875);
               padding: 2px 4px;
@@ -292,9 +292,9 @@ options:
   config:
     title: 設定
     about:
-      title: Vibe Reading について
-      description: Vibe Reading は 2025 年 4 月に生まれました
-      mission: Vibe Reading は、AI 時代における質の高い教育機会への平等なアクセスを広げるため、語学学習、医学、その他の知識集約型分野で、実際の教師に近い学習体験を手頃な価格で提供することを目指しています。
+      title: 素読 について
+      description: 素読 は 2025 年 4 月に生まれました
+      mission: 素読 は、AI 時代における質の高い教育機会への平等なアクセスを広げるため、語学学習、医学、その他の知識集約型分野で、実際の教師に近い学習体験を手頃な価格で提供することを目指しています。
     resetConfig:
       title: 設定をリセット
       description: すべての設定をデフォルト値にリセットします。

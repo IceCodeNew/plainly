@@ -6,13 +6,13 @@ async function loadStyleInjector() {
   vi.resetModules()
 
   vi.doMock("@/assets/styles/custom-translation-node.css?raw", () => ({
-    default: "@import '@/assets/styles/host-theme.css';\n[data-vibe-reading-custom-translation-style='blur'] { opacity: 0.75; }",
+    default: "@import '@/assets/styles/host-theme.css';\n[data-plainly-custom-translation-style='blur'] { opacity: 0.75; }",
   }))
   vi.doMock("@/assets/styles/host-theme.css?raw", () => ({
-    default: ":root { --vibe-reading-primary: oklch(0.205 0 0); --vibe-reading-brand: oklch(76.034% 0.12361 82.191); }",
+    default: ":root { --plainly-primary: oklch(0.205 0 0); --plainly-brand: oklch(76.034% 0.12361 82.191); }",
   }))
   vi.doMock("@/assets/styles/translation-node-preset.css?raw", () => ({
-    default: ".vibe-reading-translated-content-wrapper { display: inline; }",
+    default: ".plainly-translated-content-wrapper { display: inline; }",
   }))
 
   return import("../style-injector")
@@ -34,9 +34,9 @@ describe("style-injector", () => {
 
     ensurePresetStyles(document)
 
-    const presetStyle = document.head.querySelector<HTMLStyleElement>("#vibe-reading-preset-styles")
+    const presetStyle = document.head.querySelector<HTMLStyleElement>("#plainly-preset-styles")
     expect(presetStyle).not.toBeNull()
-    expect(presetStyle?.textContent).toContain(".vibe-reading-translated-content-wrapper")
+    expect(presetStyle?.textContent).toContain(".plainly-translated-content-wrapper")
     expect(presetStyle?.textContent).toContain(":root")
     expect(presetStyle?.textContent).not.toContain(":host")
   })
@@ -53,8 +53,8 @@ describe("style-injector", () => {
     ensurePresetStyles(document)
 
     expect(document.adoptedStyleSheets).toHaveLength(1)
-    expect(document.adoptedStyleSheets[0]?.cssRules[0]?.cssText).toContain("--vibe-reading-brand")
-    expect(document.head.querySelector("#vibe-reading-preset-styles")).toBeNull()
+    expect(document.adoptedStyleSheets[0]?.cssRules[0]?.cssText).toContain("--plainly-brand")
+    expect(document.head.querySelector("#plainly-preset-styles")).toBeNull()
   })
 
   it("falls back to style elements when adoptedStyleSheets assignment throws", async () => {
@@ -73,7 +73,7 @@ describe("style-injector", () => {
 
     ensurePresetStyles(document)
 
-    const presetStyle = document.head.querySelector<HTMLStyleElement>("#vibe-reading-preset-styles")
+    const presetStyle = document.head.querySelector<HTMLStyleElement>("#plainly-preset-styles")
     expect(presetStyle).not.toBeNull()
     expect(adoptedStyleSheets).toHaveLength(0)
   })
@@ -90,9 +90,9 @@ describe("style-injector", () => {
 
     ensurePresetStyles(shadow)
 
-    const presetStyle = shadow.querySelector<HTMLStyleElement>("#vibe-reading-preset-styles")
+    const presetStyle = shadow.querySelector<HTMLStyleElement>("#plainly-preset-styles")
     expect(presetStyle).not.toBeNull()
-    expect(presetStyle?.textContent).toContain(".vibe-reading-translated-content-wrapper")
+    expect(presetStyle?.textContent).toContain(".plainly-translated-content-wrapper")
     expect(presetStyle?.textContent).toContain(":host")
     expect(presetStyle?.textContent).not.toContain(":root {")
   })
@@ -102,8 +102,8 @@ describe("style-injector", () => {
 
     await ensureCustomCSS(document, ".custom-translation-style { color: red; }")
 
-    const presetStyle = document.head.querySelector<HTMLStyleElement>("#vibe-reading-preset-styles")
-    const customStyle = document.head.querySelector<HTMLStyleElement>("#vibe-reading-custom-styles")
+    const presetStyle = document.head.querySelector<HTMLStyleElement>("#plainly-preset-styles")
+    const customStyle = document.head.querySelector<HTMLStyleElement>("#plainly-custom-styles")
 
     expect(presetStyle).not.toBeNull()
     expect(customStyle).not.toBeNull()
@@ -123,6 +123,6 @@ describe("style-injector", () => {
 
     expect(document.adoptedStyleSheets).toHaveLength(2)
     expect(Array.from(document.adoptedStyleSheets[1]?.cssRules ?? [], rule => rule.cssText).join("\n")).toContain("color: blue")
-    expect(document.head.querySelector("#vibe-reading-custom-styles")).toBeNull()
+    expect(document.head.querySelector("#plainly-custom-styles")).toBeNull()
   })
 })

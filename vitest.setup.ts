@@ -78,7 +78,7 @@ vi.mock("wxt/testing", async () => {
         ...actual.fakeBrowser.runtime,
         getManifest: () => ({
           manifest_version: 3,
-          name: "Vibe Reading",
+          name: "Plainly",
           version: "1.0.0",
           description: "Test manifest",
         }),

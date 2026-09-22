@@ -1,7 +1,7 @@
 // Chrome Console Debugger - Simulate Four Finger Touch
 // Copy and paste into Chrome DevTools Console to run
 
-console.log("Vibe Reading - four-finger touch debug script")
+console.log("Plainly - four-finger touch debug script")
 
 // Create simulated touch points
 function createTouch(x, y, id) {

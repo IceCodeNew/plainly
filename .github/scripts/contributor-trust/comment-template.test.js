@@ -29,7 +29,7 @@ describe("buildTrustComment", () => {
           },
         ],
       },
-      owner: "vibe-reading",
+      owner: "plainly",
       plan: {
         needsMaintainerReview: false,
         targetTrustLabel: "contrib-trust:trusted",
@@ -41,7 +41,7 @@ describe("buildTrustComment", () => {
         state: "open",
         title: "fix: storage false value reset and backup delete dialog not showing",
       },
-      repo: "vibe-reading",
+      repo: "plainly",
       score: {
         bucket: "trusted",
         communityStanding: 6,

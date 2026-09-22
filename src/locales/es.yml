@@ -1,6 +1,6 @@
-name: Vibe Reading
-extName: Vibe Reading - Traduce y aprende
-extDescription: Vibe Reading es una extensión de navegador de código abierto diseñada para ayudarte a aprender idiomas en profundidad desde cualquier sitio web.
+name: Plainly
+extName: Plainly - Traduce y aprende
+extDescription: Plainly es una extensión de navegador de código abierto diseñada para ayudarte a aprender idiomas en profundidad desde cualquier sitio web.
 dataTypes:
   string: Texto
   number: Número
@@ -231,7 +231,7 @@ options:
         editor:
           placeholder: |
             /* Example: Custom style with color and background */
-            [data-vibe-reading-custom-translation-style='custom'] {
+            [data-plainly-custom-translation-style='custom'] {
               color: #414535;
               background-color: light-dark(#F2E3BC, #C19875);
               padding: 2px 4px;
@@ -294,8 +294,8 @@ options:
     title: Configuración
     about:
       title: Acerca de
-      description: Vibe Reading nació en abril de 2025
-      mission: Vibe Reading busca ampliar el acceso igualitario a educación de alta calidad en la era de la AI haciendo asequibles experiencias de aprendizaje que se sientan más cercanas a un profesor real, en el aprendizaje de idiomas, medicina y otros campos intensivos en conocimiento.
+      description: Plainly nació en abril de 2025
+      mission: Plainly busca ampliar el acceso igualitario a educación de alta calidad en la era de la AI haciendo asequibles experiencias de aprendizaje que se sientan más cercanas a un profesor real, en el aprendizaje de idiomas, medicina y otros campos intensivos en conocimiento.
     resetConfig:
       title: Restablecer configuración
       description: Restablecer toda la configuración al valor predeterminado

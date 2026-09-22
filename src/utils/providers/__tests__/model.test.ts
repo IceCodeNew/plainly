@@ -125,7 +125,7 @@ describe("getModelById", () => {
           },
           headers: {
             "HTTP-Referer": "https://example.com",
-            "X-Title": "Vibe Reading",
+            "X-Title": "Plainly",
           },
         },
       ],
@@ -141,7 +141,7 @@ describe("getModelById", () => {
       apiKey: "custom-key",
       headers: {
         "HTTP-Referer": "https://example.com",
-        "X-Title": "Vibe Reading",
+        "X-Title": "Plainly",
       },
     }))
     expect(openAICompatibleLanguageModelMock).toHaveBeenCalledWith("custom-model")

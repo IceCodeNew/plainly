@@ -13,7 +13,7 @@ export function removeShadowHostInTranslatedWrapper(wrapper: HTMLElement): void 
   }
 
   // Remove lightweight spinners
-  const spinner = wrapper.querySelector(".vibe-reading-spinner")
+  const spinner = wrapper.querySelector(".plainly-spinner")
   if (spinner) {
     batchDOMOperation(() => spinner.remove())
   }

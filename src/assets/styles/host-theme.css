@@ -1,17 +1,17 @@
 :root {
-  --vibe-reading-primary: oklch(0.205 0 0);
-  --vibe-reading-brand: oklch(76.034% 0.12361 82.191);
-  --vibe-reading-foreground: oklch(0.985 0 0);
-  --vibe-reading-muted: oklch(0.97 0 0);
-  --vibe-reading-muted-foreground: oklch(0.556 0 0);
+  --plainly-primary: oklch(0.205 0 0);
+  --plainly-brand: oklch(76.034% 0.12361 82.191);
+  --plainly-foreground: oklch(0.985 0 0);
+  --plainly-muted: oklch(0.97 0 0);
+  --plainly-muted-foreground: oklch(0.556 0 0);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --vibe-reading-primary: oklch(0.922 0 0);
-    --vibe-reading-brand: oklch(76.034% 0.12361 82.191);
-    --vibe-reading-foreground: oklch(0.205 0 0);
-    --vibe-reading-muted: oklch(0.269 0 0);
-    --vibe-reading-muted-foreground: oklch(0.708 0 0);
+    --plainly-primary: oklch(0.922 0 0);
+    --plainly-brand: oklch(76.034% 0.12361 82.191);
+    --plainly-foreground: oklch(0.205 0 0);
+    --plainly-muted: oklch(0.269 0 0);
+    --plainly-muted-foreground: oklch(0.708 0 0);
   }
 }

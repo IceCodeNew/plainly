@@ -1,23 +1,23 @@
-.vibe-reading-translated-content-wrapper,
-.vibe-reading-translated-content-wrapper * {
+.plainly-translated-content-wrapper,
+.plainly-translated-content-wrapper * {
   overflow-wrap: anywhere;
   word-break: normal;
   user-select: text;
   text-decoration-skip-ink: auto;
 }
 
-.vibe-reading-translated-block-content {
+.plainly-translated-block-content {
   display: inline-block;
   margin: 8px 0 !important;
   color: inherit;
   font-family: inherit;
 }
 
-.vibe-reading-translated-block-content[data-vibe-reading-float-wrap="true"] {
+.plainly-translated-block-content[data-plainly-float-wrap="true"] {
   display: block !important;
 }
 
-.vibe-reading-translated-inline-content {
+.plainly-translated-inline-content {
   display: inline;
   color: inherit;
   font-family: inherit;
@@ -25,8 +25,8 @@
 }
 
 /* Simplified Chinese - macOS > Windows > Cross-platform > Fallback */
-.vibe-reading-translated-content-wrapper[lang="zh"],
-.vibe-reading-translated-content-wrapper[lang="zh"] * {
+.plainly-translated-content-wrapper[lang="zh"],
+.plainly-translated-content-wrapper[lang="zh"] * {
   font-family:
     "PingFang SC",
     "Microsoft YaHei",
@@ -43,8 +43,8 @@
 }
 
 /* Traditional Chinese - macOS > Windows > Cross-platform > Fallback */
-.vibe-reading-translated-content-wrapper[lang="zh-TW"],
-.vibe-reading-translated-content-wrapper[lang="zh-TW"] * {
+.plainly-translated-content-wrapper[lang="zh-TW"],
+.plainly-translated-content-wrapper[lang="zh-TW"] * {
   font-family:
     "PingFang TC",
     "Microsoft JhengHei",
@@ -64,8 +64,8 @@
 }
 
 /* Japanese - macOS/Windows high-quality > Cross-platform > Legacy > Fallback */
-.vibe-reading-translated-content-wrapper[lang="ja"],
-.vibe-reading-translated-content-wrapper[lang="ja"] * {
+.plainly-translated-content-wrapper[lang="ja"],
+.plainly-translated-content-wrapper[lang="ja"] * {
   font-family:
     "Hiragino Kaku Gothic ProN",
     "Yu Gothic",
@@ -85,35 +85,35 @@
 }
 
 /* Arabic script languages - common typography features */
-.vibe-reading-translated-content-wrapper[lang="ar"],
-.vibe-reading-translated-content-wrapper[lang="ar"] *,
-.vibe-reading-translated-content-wrapper[lang="fa"],
-.vibe-reading-translated-content-wrapper[lang="fa"] *,
-.vibe-reading-translated-content-wrapper[lang="ur"],
-.vibe-reading-translated-content-wrapper[lang="ur"] * {
+.plainly-translated-content-wrapper[lang="ar"],
+.plainly-translated-content-wrapper[lang="ar"] *,
+.plainly-translated-content-wrapper[lang="fa"],
+.plainly-translated-content-wrapper[lang="fa"] *,
+.plainly-translated-content-wrapper[lang="ur"],
+.plainly-translated-content-wrapper[lang="ur"] * {
   font-feature-settings:
     "rlig" 1,
     "calt" 1;
 }
 
 /* Arabic - macOS high-quality > Cross-platform > macOS legacy > Fallback */
-.vibe-reading-translated-content-wrapper[lang="ar"],
-.vibe-reading-translated-content-wrapper[lang="ar"] * {
+.plainly-translated-content-wrapper[lang="ar"],
+.plainly-translated-content-wrapper[lang="ar"] * {
   font-family:
     "SF Arabic", "Noto Sans Arabic", "Noto Naskh Arabic", "Geeza Pro", "Traditional Arabic", "Segoe UI", Tahoma, Arial,
     sans-serif;
 }
 
 /* Persian/Farsi - macOS > Cross-platform > Platform-specific > Fallback */
-.vibe-reading-translated-content-wrapper[lang="fa"],
-.vibe-reading-translated-content-wrapper[lang="fa"] * {
+.plainly-translated-content-wrapper[lang="fa"],
+.plainly-translated-content-wrapper[lang="fa"] * {
   font-family:
     "SF Arabic", "Noto Sans Arabic", "Geeza Pro", "Iranian Sans", "Segoe UI", Tahoma, Arial, sans-serif !important;
 }
 
 /* Urdu - Specialized Nastaliq > Cross-platform > Fallback */
-.vibe-reading-translated-content-wrapper[lang="ur"],
-.vibe-reading-translated-content-wrapper[lang="ur"] * {
+.plainly-translated-content-wrapper[lang="ur"],
+.plainly-translated-content-wrapper[lang="ur"] * {
   font-family:
     "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", "SF Arabic", "Noto Sans Arabic", "Alvi Nastaleeq", "Segoe UI",
     Tahoma, Arial, sans-serif;

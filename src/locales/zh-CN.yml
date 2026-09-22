@@ -1,6 +1,6 @@
-name: Vibe Reading
-extName: Vibe Reading - 翻译与学习
-extDescription: Vibe Reading是一款开放源代码的浏览器插件，旨在帮助您从任何网站深入学习语言。
+name: 素读
+extName: 素读 - 翻译与学习
+extDescription: 素读是一款开放源代码的浏览器插件，旨在帮助您从任何网站深入学习语言。
 dataTypes:
   string: 文本
   number: 数字
@@ -231,7 +231,7 @@ options:
         editor:
           placeholder: |
             /* 示例：自定义颜色和背景样式 */
-            [data-vibe-reading-custom-translation-style='custom'] {
+            [data-plainly-custom-translation-style='custom'] {
               color: #414535;
               background-color: light-dark(#F2E3BC, #C19875);
               padding: 2px 4px;
@@ -294,8 +294,8 @@ options:
     title: 配置
     about:
       title: 关于
-      description: Vibe Reading 出生于 2025 年 4 月
-      mission: Vibe Reading 致力于在 AI 时代扩大高质量教育机会的平等可及性，通过更低成本地提供尽可能接近真人教师的学习体验，覆盖语言学习、医学以及其他知识密集型领域。
+      description: 素读 出生于 2025 年 4 月
+      mission: 素读 致力于在 AI 时代扩大高质量教育机会的平等可及性，通过更低成本地提供尽可能接近真人教师的学习体验，覆盖语言学习、医学以及其他知识密集型领域。
     resetConfig:
       title: 恢复默认配置
       description: 将所有配置重置为默认

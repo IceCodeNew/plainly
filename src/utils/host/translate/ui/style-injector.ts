@@ -117,7 +117,7 @@ export function ensurePresetStyles(root: StyleRoot): void {
     root.adoptedStyleSheets = [...root.adoptedStyleSheets, getPresetStyleSheet(root)]
   }
   else {
-    injectStyleElement(root, "vibe-reading-preset-styles", getPresetCSS(root))
+    injectStyleElement(root, "plainly-preset-styles", getPresetCSS(root))
   }
 }
 
@@ -147,7 +147,7 @@ export async function ensureCustomCSS(root: StyleRoot, cssText: string): Promise
     await sheet.replace(cssText)
   }
   else {
-    injectStyleElement(root, "vibe-reading-custom-styles", cssText)
+    injectStyleElement(root, "plainly-custom-styles", cssText)
   }
 
   if (root instanceof Document) {

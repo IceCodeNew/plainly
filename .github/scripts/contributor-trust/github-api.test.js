@@ -13,7 +13,7 @@ describe("selectOwnedNonForkRepositories", () => {
     const result = selectOwnedNonForkRepositories([
       {
         isFork: true,
-        nameWithOwner: "kilidoc/vibe-reading",
+        nameWithOwner: "kilidoc/plainly",
         owner: { login: "kilidoc" },
         stargazerCount: 5040,
       },
@@ -31,8 +31,8 @@ describe("selectOwnedNonForkRepositories", () => {
       },
       {
         isFork: false,
-        nameWithOwner: "vibe-reading/vibe-reading",
-        owner: { login: "vibe-reading" },
+        nameWithOwner: "plainly/plainly",
+        owner: { login: "plainly" },
         stargazerCount: 5041,
       },
       {
@@ -123,8 +123,8 @@ describe("countAuthorCommitsInRepo", () => {
     try {
       const count = await countAuthorCommitsInRepo(
         "token",
-        "vibe-reading",
-        "vibe-reading",
+        "plainly",
+        "plainly",
         "Sufyr",
       )
 
@@ -145,8 +145,8 @@ describe("countAuthorCommitsInRepo", () => {
     try {
       const count = await countAuthorCommitsInRepo(
         "token",
-        "vibe-reading",
-        "vibe-reading",
+        "plainly",
+        "plainly",
         "Sufyr",
       )
 
@@ -192,8 +192,8 @@ describe("countReviewsOnOthersPullRequestsInRepo", () => {
     try {
       const count = await countReviewsOnOthersPullRequestsInRepo(
         "token",
-        "vibe-reading",
-        "vibe-reading",
+        "plainly",
+        "plainly",
         "Sufyr",
         50,
       )

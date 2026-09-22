@@ -1,6 +1,6 @@
-name: Vibe Reading
-extName: Vibe Reading - Переводи и учись
-extDescription: Vibe Reading — расширение браузера с открытым исходным кодом, которое поможет вам глубоко изучать языки на любом веб-сайте.
+name: Plainly
+extName: Plainly - Переводи и учись
+extDescription: Plainly — расширение браузера с открытым исходным кодом, которое поможет вам глубоко изучать языки на любом веб-сайте.
 dataTypes:
   string: Текст
   number: Число
@@ -230,7 +230,7 @@ options:
         editor:
           placeholder: |
             /* Пример: Пользовательский стиль с цветом и фоном */
-            [data-vibe-reading-custom-translation-style='custom'] {
+            [data-plainly-custom-translation-style='custom'] {
               color: #414535;
               background-color: light-dark(#F2E3BC, #C19875);
               padding: 2px 4px;
@@ -293,8 +293,8 @@ options:
     title: Конфигурация
     about:
       title: О приложении
-      description: Vibe Reading появился в апреле 2025 года
-      mission: Vibe Reading стремится расширить равный доступ к качественному образованию в эпоху ИИ, делая обучение, максимально похожее на занятия с настоящим преподавателем, доступным по цене в языках, медицине и других знанияемких областях.
+      description: Plainly появился в апреле 2025 года
+      mission: Plainly стремится расширить равный доступ к качественному образованию в эпоху ИИ, делая обучение, максимально похожее на занятия с настоящим преподавателем, доступным по цене в языках, медицине и других знанияемких областях.
     resetConfig:
       title: Сбросить конфигурацию
       description: Сбросить все настройки до значений по умолчанию

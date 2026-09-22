@@ -1,6 +1,6 @@
-name: 陪讀蛙
-extName: 陪讀蛙 - 翻譯與學習
-extDescription: 陪讀蛙是一款開放原始碼的瀏覽器擴充功能，幫助你在任何網站上深入學習語言。
+name: 素讀
+extName: 素讀 - 翻譯與學習
+extDescription: 素讀是一款開放原始碼的瀏覽器擴充功能，幫助你在任何網站上深入學習語言。
 dataTypes:
   string: 文字
   number: 數字
@@ -230,7 +230,7 @@ options:
         editor:
           placeholder: |
             /* 範例：自訂顏色和背景樣式 */
-            [data-vibe-reading-custom-translation-style='custom'] {
+            [data-plainly-custom-translation-style='custom'] {
               color: #414535;
               background-color: light-dark(#F2E3BC, #C19875);
               padding: 2px 4px;
@@ -293,8 +293,8 @@ options:
     title: 設定
     about:
       title: 關於
-      description: Vibe Reading 於 2025 年 4 月誕生
-      mission: Vibe Reading 致力於在 AI 時代擴大高品質教育機會的平等可及性，透過更低成本地提供盡可能接近真人教師的學習體驗，涵蓋語言學習、醫學以及其他知識密集型領域。
+      description: 素讀 於 2025 年 4 月誕生
+      mission: 素讀 致力於在 AI 時代擴大高品質教育機會的平等可及性，透過更低成本地提供盡可能接近真人教師的學習體驗，涵蓋語言學習、醫學以及其他知識密集型領域。
     resetConfig:
       title: 重設設定
       description: 重設所有設定為預設值

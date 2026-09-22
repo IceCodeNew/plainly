@@ -496,7 +496,7 @@ async function fetchText(url: string, timeoutMs: number): Promise<string> {
       signal: controller.signal,
       headers: {
         "accept": "text/html,application/xhtml+xml",
-        "user-agent": "vibe-reading-ai-sdk-provider-scraper/1.0",
+        "user-agent": "plainly-ai-sdk-provider-scraper/1.0",
       },
     })
     if (!response.ok) {

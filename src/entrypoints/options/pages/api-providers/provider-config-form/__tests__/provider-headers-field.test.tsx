@@ -140,7 +140,7 @@ describe("providerHeadersField", () => {
       target: {
         value: JSON.stringify({
           "HTTP-Referer": "https://example.com",
-          "X-Title": "Vibe Reading",
+          "X-Title": "Plainly",
         }),
       },
     })
@@ -153,7 +153,7 @@ describe("providerHeadersField", () => {
     expect(screen.getByLabelText("persisted-headers")).toHaveTextContent(
       JSON.stringify({
         "HTTP-Referer": "https://example.com",
-        "X-Title": "Vibe Reading",
+        "X-Title": "Plainly",
       }),
     )
   })
@@ -225,7 +225,7 @@ describe("providerHeadersField", () => {
     render(<ProviderHeadersFieldSwitchHarness />)
 
     fireEvent.change(screen.getByLabelText("provider-headers-editor"), {
-      target: { value: JSON.stringify({ "X-Title": "Vibe Reading" }) },
+      target: { value: JSON.stringify({ "X-Title": "Plainly" }) },
     })
 
     fireEvent.click(screen.getByRole("button", { name: "switch-provider" }))

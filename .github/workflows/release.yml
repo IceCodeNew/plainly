@@ -99,8 +99,8 @@ jobs:
             --arg timestamp "$TIMESTAMP" \
             '{
               embeds: [{
-                title: "🐸 Vibe Reading Release!",
-                description: ("**Vibe Reading** version `" + $version + "` has been released!"),
+                title: "Plainly Release!",
+                description: ("**Plainly** version `" + $version + "` has been released!"),
                 url: $url,
                 color: 48253,
                 fields: $fields,

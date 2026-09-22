@@ -1,6 +1,6 @@
-name: Vibe Reading
-extName: Vibe Reading - Çevir ve Öğren
-extDescription: Vibe Reading, herhangi bir web sitesinden dilleri derinlemesine öğrenmenize yardımcı olmak için tasarlanmış açık kaynaklı bir tarayıcı uzantısıdır.
+name: Plainly
+extName: Plainly - Çevir ve Öğren
+extDescription: Plainly, herhangi bir web sitesinden dilleri derinlemesine öğrenmenize yardımcı olmak için tasarlanmış açık kaynaklı bir tarayıcı uzantısıdır.
 dataTypes:
   string: Metin
   number: Sayı
@@ -230,7 +230,7 @@ options:
         editor:
           placeholder: |
             /* Örnek: Renk ve arka planlı özel stil */
-            [data-vibe-reading-custom-translation-style='custom'] {
+            [data-plainly-custom-translation-style='custom'] {
               color: #414535;
               background-color: light-dark(#F2E3BC, #C19875);
               padding: 2px 4px;
@@ -293,8 +293,8 @@ options:
     title: Yapılandırma
     about:
       title: Hakkında
-      description: Vibe Reading Nisan 2025'te doğdu
-      mission: Vibe Reading, yapay zeka çağında yüksek kaliteli eğitime daha eşit erişimi genişletmek için, dil öğrenimi, tıp ve bilgi yoğun diğer alanlarda gerçek bir öğretmene daha yakın hissettiren öğrenme deneyimlerini daha ulaşılabilir maliyetlerle sunmayı hedefler.
+      description: Plainly Nisan 2025'te doğdu
+      mission: Plainly, yapay zeka çağında yüksek kaliteli eğitime daha eşit erişimi genişletmek için, dil öğrenimi, tıp ve bilgi yoğun diğer alanlarda gerçek bir öğretmene daha yakın hissettiren öğrenme deneyimlerini daha ulaşılabilir maliyetlerle sunmayı hedefler.
     resetConfig:
       title: Yapılandırmayı Sıfırla
       description: Tüm yapılandırmayı varsayılan değere sıfırla

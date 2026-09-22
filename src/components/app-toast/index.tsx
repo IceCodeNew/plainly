@@ -3,14 +3,14 @@ import * as React from "react"
 import { Toaster } from "sonner"
 
 import { browser } from "#imports"
-import vibeReadingIcon from "@/assets/icons/vibe-reading.png?url&no-inline"
+import plainlyIcon from "@/assets/icons/plainly.png?url&no-inline"
 import { APP_NAME } from "@/utils/constants/app"
 
-const vibeReadingIconUrl = new URL(vibeReadingIcon, browser.runtime.getURL("/")).href
+const plainlyIconUrl = new URL(plainlyIcon, browser.runtime.getURL("/")).href
 
-const vibeReadingIconElement = (
+const plainlyIconElement = (
   <img
-    src={vibeReadingIconUrl}
+    src={plainlyIconUrl}
     alt={APP_NAME}
     style={{
       maxWidth: "100%",
@@ -28,11 +28,11 @@ function AppToast({ position = "bottom-left", toastOptions, ...props }: React.Co
       position={position}
       richColors
       icons={{
-        warning: vibeReadingIconElement,
-        success: vibeReadingIconElement,
-        error: vibeReadingIconElement,
-        info: vibeReadingIconElement,
-        loading: vibeReadingIconElement,
+        warning: plainlyIconElement,
+        success: plainlyIconElement,
+        error: plainlyIconElement,
+        info: plainlyIconElement,
+        loading: plainlyIconElement,
       }}
       toastOptions={{
         ...toastOptions,
