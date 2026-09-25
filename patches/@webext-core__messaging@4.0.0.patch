@@ -1,0 +1,16 @@
+diff --git a/dist/index.mjs b/dist/index.mjs
+index 76f8b9b97cdd5e8d350b13fd30c4cfaa210fd5d3..c20e8118d909bdc5162992fdc07666c20e1568ee 100644
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -15,7 +15,10 @@ function defineExtensionMessaging(config) {
+ 				else resolve(response);
+ 			}));
+ 			const options = typeof arg === "number" ? { tabId: arg } : arg;
+-			return new Promise((res) => chrome.tabs.sendMessage(options.tabId, message, options.frameId != null ? { frameId: options.frameId } : void 0, res));
++			return new Promise((resolve, reject) => chrome.tabs.sendMessage(options.tabId, message, options.frameId != null ? { frameId: options.frameId } : void 0, (response) => {
++				if (chrome.runtime.lastError) reject(new Error(chrome.runtime.lastError.message));
++				else resolve(response);
++			}));
+ 		},
+ 		addRootListener(processMessage) {
+ 			const listener = (message, sender, sendResponse) => {

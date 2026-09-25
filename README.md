@@ -47,6 +47,11 @@ tests. To run the same repository checks as CI, use
 If `git config --get core.hooksPath` shows `.husky/_`, run
 `git config --local --unset core.hooksPath` before `pnpm exec prek install`.
 
+`pnpm test:e2e` builds the extension and opens it in headless Chromium through
+[agent-browser](https://github.com/vercel-labs/agent-browser). Install
+agent-browser and run `agent-browser install` before the first run. On Linux,
+use `agent-browser install --with-deps` to also install the system libraries.
+
 ## License
 
 Plainly is a modified version of Read Frog. Thanks to the Read Frog authors and

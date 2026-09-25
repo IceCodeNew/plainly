@@ -33,6 +33,8 @@ Git hooks 由 [prek](https://github.com/j178/prek) 管理，配置在 [`prek.tom
 
 如果 `git config --get core.hooksPath` 输出 `.husky/_`，先运行 `git config --local --unset core.hooksPath`，再执行 `pnpm exec prek install`。
 
+`pnpm test:e2e` 会先构建扩展，再通过 [agent-browser](https://github.com/vercel-labs/agent-browser) 在无头 Chromium 中打开它。首次运行前先安装 agent-browser 并执行 `agent-browser install`；Linux 上用 `agent-browser install --with-deps` 同时安装系统库。
+
 ## 许可
 
 素读是 Read Frog 的修改版本，感谢 Read Frog 的作者和贡献者提供原始作品。
