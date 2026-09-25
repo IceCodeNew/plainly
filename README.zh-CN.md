@@ -19,6 +19,18 @@ Plainly · [English](./README.md)
 
 需要这些功能的话，陪读蛙和同类工具做得很好。素读保持小巧，让页面保持安静。
 
+## 相对上游的改动
+
+本 fork 跟随 [Xuanwo/plainly](https://github.com/Xuanwo/plainly)，另有以下改动：
+
+- OpenAI、DeepSeek 等所有服务都能从各自的 `/models` 接口获取当前模型列表，请求带上该服务的自定义 header；本地端点不填 API key 也能获取。模型字段可以填写任意模型 ID，但不能保存为空。获取模型和翻译请求都会忽略 base URL 末尾的斜杠。
+- 「阅读」设置里新增可选的词首强调，加粗拉丁字母单词的开头。页面上针对 `span`、`b`、`strong` 或 `:last-child` 的样式不会改变加粗文字的布局，但按子元素计数的规则（如 `:first-child`）仍可能匹配到不同的元素。翻译请求里只有原文。
+- 快速输入设置时，已输入的内容不再被回退成旧值。
+- 向没有内容脚本的标签页发消息时，扩展错误页不再出现未检查的 `runtime.lastError`。
+- 导出提示词改用浏览器原生下载，移除了 `file-saver` 依赖。
+- 依赖升级到当前大版本，例如 AI SDK 7、Jotai 3、Vitest 5、WXT 0.21 和 pnpm 12。
+- Git hooks 由 prek 运行，依赖由 Renovate 更新，workflow 中的 action 固定到 commit SHA，CI 还会在无头 Chrome 中测试构建好的扩展。
+
 ## 开发
 
 ```bash
@@ -33,7 +45,7 @@ Git hooks 由 [prek](https://github.com/j178/prek) 管理，配置在 [`prek.tom
 
 如果 `git config --get core.hooksPath` 输出 `.husky/_`，先运行 `git config --local --unset core.hooksPath`，再执行 `pnpm exec prek install`。
 
-`pnpm test:e2e` 会先构建扩展，再通过 [agent-browser](https://github.com/vercel-labs/agent-browser) 在无头 Chromium 中打开它。首次运行前先安装 agent-browser 并执行 `agent-browser install`；Linux 上用 `agent-browser install --with-deps` 同时安装系统库。
+`pnpm test:e2e` 会先构建扩展，再通过开发依赖 [agent-browser](https://github.com/vercel-labs/agent-browser) 在无头 Chrome 中打开它。首次运行前执行 `pnpm exec agent-browser install` 下载 Chrome；Linux 上加 `--with-deps` 同时安装系统库。CI 也会运行这些测试。
 
 ## 许可
 

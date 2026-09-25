@@ -28,6 +28,32 @@ storage and accounts, config sync, statistics, and experimental switches.
 If you need those, Read Frog and similar tools do them well. Plainly stays
 small so that the page stays quiet.
 
+## Changes From Upstream
+
+This fork follows [Xuanwo/plainly](https://github.com/Xuanwo/plainly). It adds
+these changes:
+
+- Each provider, including OpenAI and DeepSeek, gets its current model list
+  from its `/models` endpoint. The request uses the custom headers of the
+  provider. A local endpoint can reply without an API key. The model field
+  accepts any model ID and cannot be saved empty. Model requests and
+  translation requests ignore trailing slashes in the base URL.
+- An optional word-prefix emphasis setting in the Reading section makes the
+  start of Latin words bold. Page styles for `span`, `b`, `strong` or
+  `:last-child` do not change the layout of the emphasized text. Page rules
+  that count child elements, for example `:first-child`, can still match
+  differently. Translation requests contain only the original text.
+- Settings that you type quickly no longer revert to an earlier value.
+- Messages to tabs without the content script no longer cause unchecked
+  `runtime.lastError` entries on the extension error page.
+- Prompt export uses the browser download function. The `file-saver`
+  dependency is removed.
+- The dependencies use current major versions, for example AI SDK 7, Jotai 3,
+  Vitest 5, WXT 0.21 and pnpm 12.
+- prek runs the Git hooks. Renovate updates the dependencies. The workflows
+  use actions pinned to commit SHAs. CI also tests the built extension in
+  headless Chrome.
+
 ## Development
 
 ```bash
@@ -47,10 +73,11 @@ tests. To run the same repository checks as CI, use
 If `git config --get core.hooksPath` shows `.husky/_`, run
 `git config --local --unset core.hooksPath` before `pnpm exec prek install`.
 
-`pnpm test:e2e` builds the extension and opens it in headless Chromium through
-[agent-browser](https://github.com/vercel-labs/agent-browser). Install
-agent-browser and run `agent-browser install` before the first run. On Linux,
-use `agent-browser install --with-deps` to also install the system libraries.
+`pnpm test:e2e` builds the extension and opens it in headless Chrome through
+[agent-browser](https://github.com/vercel-labs/agent-browser), a development
+dependency. Before the first run, run `pnpm exec agent-browser install` to
+download Chrome. On Linux, add `--with-deps` to also install the system
+libraries. CI runs the same tests.
 
 ## License
 
