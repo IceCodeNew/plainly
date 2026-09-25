@@ -1,34 +1,76 @@
 name: PR - Test & Build
 
 on:
+  push:
+    branches:
+      - master
+      - "renovate/**"
   pull_request:
     branches:
-      - main
+      - master
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test-and-build:
     name: Test & Build
+    if: >-
+      github.event_name == 'push' ||
+      github.event.pull_request.head.repo.full_name != github.repository ||
+      !startsWith(github.head_ref, 'renovate/')
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     env:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ vars.TURBO_TEAM }}
 
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: "24"
-          cache: pnpm
+
+      - name: Locate pnpm cache
+        id: pnpm-cache
+        run: |
+          echo "store=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+          echo "version=$(pnpm --version)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache pnpm packages and metadata
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: |
+            ${{ steps.pnpm-cache.outputs.store }}
+            ~/.cache/pnpm
+          key: pnpm-${{ runner.os }}-${{ runner.arch }}-${{ steps.pnpm-cache.outputs.version }}-${{ hashFiles('.npmrc', 'pnpm-workspace.yaml') }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-${{ runner.arch }}-${{ steps.pnpm-cache.outputs.version }}-${{ hashFiles('.npmrc', 'pnpm-workspace.yaml') }}-
 
       - name: Install Dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --prefer-offline --network-concurrency=8
         shell: bash
+
+      - name: Cache prek hook environments
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: ~/.cache/prek
+          key: prek-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('prek.toml') }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            prek-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('prek.toml') }}-
+
+      - name: Run prek checks
+        run: pnpm exec prek run --all-files --stage manual --show-diff-on-failure
 
       - name: Check for eruda imports
         run: |

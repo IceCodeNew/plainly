@@ -1,0 +1,24 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "forkProcessing": "enabled",
+  "extends": [
+    "config:best-practices",
+    "group:allNonMajor",
+    "group:linters",
+    "security:openssf-scorecard"
+  ],
+  "packageRules": [
+    {
+      "matchPackageNames": ["*"],
+      "minimumReleaseAge": "3 days",
+      "internalChecksFilter": "strict"
+    },
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchCurrentVersion": "!/^0/",
+      "automerge": true
+    }
+  ],
+  "automergeType": "branch",
+  "timezone": "Asia/Shanghai"
+}

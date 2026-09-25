@@ -1,3 +1,5 @@
+set -eu
+
 echo "🔍 Checking for uncommented eruda imports..."
 if grep -r "import.*eruda" src/ --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" | grep -v ":.*[[:space:]]*//.*import.*eruda"; then
   echo "❌ Found uncommented eruda imports in the codebase!"

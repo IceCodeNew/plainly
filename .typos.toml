@@ -1,0 +1,15 @@
+[files]
+# ISO language identifiers and non-English translations are not English prose.
+extend-exclude = [
+  "src/definitions/index.ts",
+  "src/locales/{es,ja,ko,ru,tr,vi,zh-CN,zh-TW}.yml",
+]
+
+[default.extend-words]
+tha = "tha"
+yor = "yor"
+som = "som"
+bre = "bre"
+mak = "mak"
+ede = "ede"
+Fre = "Fre"

@@ -23,10 +23,15 @@ Plainly · [English](./README.md)
 
 ```bash
 pnpm install
+pnpm exec prek install
 pnpm test
 pnpm type-check
 pnpm build
 ```
+
+Git hooks 由 [prek](https://github.com/j178/prek) 管理，配置在 [`prek.toml`](./prek.toml)：提交前运行 lint-staged，检查提交信息，推送前运行 lint、类型检查和测试。运行 `pnpm exec prek run --all-files --stage manual` 可执行与 CI 相同的仓库检查。
+
+如果 `git config --get core.hooksPath` 输出 `.husky/_`，先运行 `git config --local --unset core.hooksPath`，再执行 `pnpm exec prek install`。
 
 ## 许可
 

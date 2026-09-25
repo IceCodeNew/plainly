@@ -17,23 +17,41 @@ jobs:
   submit:
     name: Submit to Stores
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout Release Tag
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
+          persist-credentials: false
           ref: ${{ inputs.tag }}
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: "24"
-          cache: pnpm
+
+      - name: Locate pnpm cache
+        id: pnpm-cache
+        run: |
+          echo "store=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+          echo "version=$(pnpm --version)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache pnpm packages and metadata
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: |
+            ${{ steps.pnpm-cache.outputs.store }}
+            ~/.cache/pnpm
+          key: pnpm-${{ runner.os }}-${{ runner.arch }}-${{ steps.pnpm-cache.outputs.version }}-${{ hashFiles('.npmrc', 'pnpm-workspace.yaml') }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-${{ runner.arch }}-${{ steps.pnpm-cache.outputs.version }}-${{ hashFiles('.npmrc', 'pnpm-workspace.yaml') }}-
 
       - name: Install Dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --prefer-offline --network-concurrency=8
 
       - name: Run Tests
         run: pnpm test

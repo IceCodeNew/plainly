@@ -3,7 +3,7 @@
   "type": "module",
   "version": "1.0.0",
   "private": true,
-  "packageManager": "pnpm@10.33.4",
+  "packageManager": "pnpm@12.5.1",
   "description": "Translates the web page you are reading, and does nothing else.",
   "scripts": {
     "build": "wxt build",
@@ -24,8 +24,7 @@
     "zip": "wxt zip",
     "zip:edge": "wxt zip -b edge",
     "zip:firefox": "wxt zip -b firefox --mv3",
-    "zip:all": "pnpm zip && pnpm zip:edge && pnpm zip:firefox",
-    "prepare": "husky"
+    "zip:all": "pnpm zip && pnpm zip:edge && pnpm zip:firefox"
   },
   "dependencies": {
     "@ai-sdk/deepseek": "^2.0.36",
@@ -73,6 +72,7 @@
     "@commitlint/cli": "^21.0.2",
     "@commitlint/config-conventional": "^21.0.2",
     "@eslint-react/eslint-plugin": "^5.8.18",
+    "@j178/prek": "0.5.3",
     "@tailwindcss/postcss": "^4.3.0",
     "@tanstack/eslint-plugin-query": "^5.101.0",
     "@testing-library/jest-dom": "^6.9.1",
@@ -90,7 +90,6 @@
     "eslint": "^10.4.1",
     "eslint-plugin-format": "^2.0.1",
     "eslint-plugin-react-refresh": "^0.5.2",
-    "husky": "^9.1.7",
     "jsdom": "^29.1.1",
     "lint-staged": "^17.0.7",
     "nx": "^22.7.5",
@@ -107,7 +106,7 @@
   "devEngines": {
     "runtime": {
       "name": "node",
-      "version": ">=22.0.0",
+      "version": ">=22.13.0",
       "onFail": "download"
     }
   },

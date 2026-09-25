@@ -32,10 +32,20 @@ small so that the page stays quiet.
 
 ```bash
 pnpm install
+pnpm exec prek install
 pnpm test
 pnpm type-check
 pnpm build
 ```
+
+[prek](https://github.com/j178/prek) manages the Git hooks in
+[`prek.toml`](./prek.toml). Before a commit, it runs lint-staged. It checks
+commit messages with commitlint. Before a push, it runs lint, type checks and
+tests. To run the same repository checks as CI, use
+`pnpm exec prek run --all-files --stage manual`.
+
+If `git config --get core.hooksPath` shows `.husky/_`, run
+`git config --local --unset core.hooksPath` before `pnpm exec prek install`.
 
 ## License
 
