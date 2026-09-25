@@ -1,24 +1,12 @@
-import type { AllProviderTypes, APIProviderTypes, LLMProviderModels, ProviderConfig, ProvidersConfig } from "@/types/config/provider"
+import type { AllProviderTypes, APIProviderTypes, LLMProviderConfig, LLMProviderTypes, ProviderConfig, ProvidersConfig } from "@/types/config/provider"
 import { API_PROVIDER_TYPES, TRANSLATE_PROVIDER_TYPES } from "@/types/config/provider"
 import { pick } from "@/types/utils"
 
-export const DEFAULT_LLM_PROVIDER_MODELS: LLMProviderModels = {
-  "openai-compatible": {
-    model: "use-custom-model",
-    isCustomModel: true,
-    customModel: null,
-  },
-  "openai": {
-    model: "gpt-5-mini",
-    isCustomModel: false,
-    customModel: null,
-  },
-  "deepseek": {
-    model: "deepseek-v4-flash",
-    isCustomModel: false,
-    customModel: null,
-  },
-}
+export const DEFAULT_LLM_PROVIDER_MODELS = {
+  "openai-compatible": "",
+  "openai": "gpt-5-mini",
+  "deepseek": "deepseek-v4-flash",
+} as const satisfies Record<LLMProviderTypes, LLMProviderConfig["model"]>
 
 export interface ProviderItem {
   name: string

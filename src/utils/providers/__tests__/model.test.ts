@@ -64,11 +64,7 @@ describe("getModelById", () => {
         enabled: true,
         provider: "openai",
         apiKey: "test-key",
-        model: {
-          model: "gpt-5-mini",
-          isCustomModel: false,
-          customModel: null,
-        },
+        model: "gpt-5-mini",
       }],
     })
 
@@ -90,11 +86,7 @@ describe("getModelById", () => {
         enabled: true,
         provider: "deepseek",
         apiKey: "test-key",
-        model: {
-          model: "deepseek-v4-flash",
-          isCustomModel: false,
-          customModel: null,
-        },
+        model: "deepseek-v4-flash",
       }],
     })
 
@@ -118,11 +110,7 @@ describe("getModelById", () => {
           provider: "openai-compatible",
           apiKey: "custom-key",
           baseURL: "http://127.0.0.1:1234/v1",
-          model: {
-            model: "use-custom-model",
-            isCustomModel: true,
-            customModel: "custom-model",
-          },
+          model: "custom-model",
           headers: {
             "HTTP-Referer": "https://example.com",
             "X-Title": "Plainly",

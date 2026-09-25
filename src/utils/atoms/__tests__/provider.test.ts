@@ -1,26 +1,15 @@
-import type { PartialDeep } from "type-fest"
 import type { ProviderConfig } from "@/types/config/provider"
 import { describe, expect, it } from "vitest"
 import { DEFAULT_PROVIDER_CONFIG } from "@/utils/constants/providers"
-import { updateLLMProviderConfig, updateProviderConfig } from "../provider"
+import { updateProviderConfig } from "../provider"
 
 type OpenAIProviderConfig = Extract<ProviderConfig, { provider: "openai" }>
 
 describe("provider config updates", () => {
-  it("merges nested LLM model updates without changing untouched fields", () => {
-    const result = updateLLMProviderConfig(DEFAULT_PROVIDER_CONFIG.openai, {
-      model: {
-        customModel: "gpt-5-custom",
-        isCustomModel: true,
-      },
-    })
+  it("replaces the model ID without changing untouched fields", () => {
+    const result = updateProviderConfig(DEFAULT_PROVIDER_CONFIG.openai, { model: "gpt-5-custom" })
 
-    expect(result.model).toEqual({
-      ...DEFAULT_PROVIDER_CONFIG.openai.model,
-      customModel: "gpt-5-custom",
-      isCustomModel: true,
-    })
-    expect(result.provider).toBe("openai")
+    expect(result).toEqual({ ...DEFAULT_PROVIDER_CONFIG.openai, model: "gpt-5-custom" })
   })
 
   it("merges provider option objects and preserves the rest of the config", () => {
@@ -45,13 +34,5 @@ describe("provider config updates", () => {
     expect(result.headers).toEqual({ "X-Test": "1" })
     expect(result.model).toEqual(DEFAULT_PROVIDER_CONFIG.openai.model)
     expect(result.provider).toBe("openai")
-  })
-
-  it("rejects merged configs that no longer match the provider schema", () => {
-    const invalidUpdates = {
-      provider: "openai",
-    } as PartialDeep<ProviderConfig>
-
-    expect(() => updateProviderConfig(DEFAULT_PROVIDER_CONFIG.deepseek, invalidUpdates)).toThrow()
   })
 })

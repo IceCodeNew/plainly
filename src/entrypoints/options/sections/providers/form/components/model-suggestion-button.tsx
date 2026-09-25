@@ -1,6 +1,8 @@
+import type { LLMProviderConfig } from "@/types/config/provider"
 import { Combobox as ComboboxPrimitive } from "@base-ui/react"
 import { IconAlertCircle, IconList, IconListSearch } from "@tabler/icons-react"
 import { useMutation } from "@tanstack/react-query"
+import { z } from "zod"
 import { i18n } from "#imports"
 import LoadingDots from "@/components/loading-dots"
 import { Button } from "@/components/ui/base-ui/button"
@@ -13,143 +15,129 @@ import {
   ComboboxList,
 } from "@/components/ui/base-ui/combobox"
 import { extractErrorMessage } from "@/utils/error/extract-message"
+import { normalizeBaseURL } from "@/utils/providers/base-url"
+import { getProviderHeadersWithOverride } from "@/utils/providers/headers"
 
-interface ModelsResponse {
-  object: string
-  data: Array<{ id: string, object: string, created: number, owned_by: string }>
-}
+const modelsResponseSchema = z.object({
+  data: z.array(z.object({ id: z.string().trim().min(1) })),
+})
+
+const DEFAULT_BASE_URLS = {
+  "openai": "https://api.openai.com/v1",
+  "deepseek": "https://api.deepseek.com",
+  "openai-compatible": "",
+} satisfies Record<LLMProviderConfig["provider"], string>
 
 interface ModelSuggestionButtonProps {
-  baseURL: string
-  apiKey?: string
+  providerConfig: LLMProviderConfig
   onSelect: (model: string) => void
-  disabled?: boolean
 }
 
-export function ModelSuggestionButton({
+export function ModelSuggestionButton({ providerConfig, onSelect }: ModelSuggestionButtonProps) {
+  const baseURL = normalizeBaseURL(providerConfig.baseURL) ?? DEFAULT_BASE_URLS[providerConfig.provider]
+  const headers = getProviderHeadersWithOverride(providerConfig.provider, providerConfig.headers)
+  return (
+    <ModelSuggestions
+      key={JSON.stringify([providerConfig.id, providerConfig.provider, baseURL, providerConfig.apiKey, Object.entries(headers ?? {}).sort(([a], [b]) => a.localeCompare(b))])}
+      baseURL={baseURL}
+      apiKey={providerConfig.apiKey}
+      headers={headers}
+      onSelect={onSelect}
+    />
+  )
+}
+
+interface ModelSuggestionsProps {
+  baseURL: string
+  apiKey?: string
+  headers?: Record<string, string>
+  onSelect: (model: string) => void
+}
+
+function ModelSuggestions({
   baseURL,
   apiKey,
+  headers,
   onSelect,
-  disabled,
-}: ModelSuggestionButtonProps) {
+}: ModelSuggestionsProps) {
   const mutation = useMutation({
     mutationKey: ["fetchModels", baseURL],
     meta: {
       errorDescription: i18n.t("options.providers.form.models.fetchError"),
     },
     mutationFn: async () => {
-      if (!apiKey) {
-        throw new Error(i18n.t("options.providers.form.models.apiKeyRequired"))
+      const requestHeaders = new Headers(headers)
+      if (apiKey && !requestHeaders.has("Authorization")) {
+        requestHeaders.set("Authorization", `Bearer ${apiKey}`)
       }
 
       const response = await fetch(`${baseURL}/models`, {
-        headers: { Authorization: `Bearer ${apiKey}` },
+        headers: requestHeaders,
+        signal: AbortSignal.timeout(15000),
       })
       if (!response.ok) {
         throw new Error(await extractErrorMessage(response))
       }
 
-      const data: ModelsResponse = await response.json()
-      return data.data.map(m => m.id)
+      const result = modelsResponseSchema.safeParse(await response.json())
+      if (!result.success) {
+        throw new Error(i18n.t("options.providers.form.models.fetchError"))
+      }
+      return [...new Set(result.data.data.map(model => model.id))].sort()
     },
   })
 
-  const handleFetch = () => {
-    if (!baseURL)
-      return
-    mutation.reset()
-    mutation.mutate()
-  }
-
-  const isDisabled = disabled || !baseURL
-
-  // Idle state - show fetch button
-  if (mutation.isIdle) {
-    return (
+  const models = mutation.data ?? []
+  return (
+    <div className="flex flex-wrap items-center justify-end gap-2">
       <Button
         type="button"
         variant="outline"
         size="xs"
-        onClick={handleFetch}
-        disabled={isDisabled}
-      >
-        <IconListSearch className="size-3.5" />
-        {i18n.t("options.providers.form.models.fetchModels")}
-      </Button>
-    )
-  }
-
-  // Loading state
-  if (mutation.isPending) {
-    return (
-      <Button type="button" variant="outline" size="xs" disabled>
-        <LoadingDots className="scale-75" />
-        {i18n.t("options.providers.form.models.fetchModels")}
-      </Button>
-    )
-  }
-
-  // Error state - show error button with retry option
-  if (mutation.isError) {
-    return (
-      <Button
-        type="button"
-        variant="outline"
-        size="xs"
-        onClick={handleFetch}
-        className="text-red-500 hover:text-red-500"
-      >
-        <IconAlertCircle className="size-3.5" />
-        {i18n.t("options.providers.form.models.clickToRetry")}
-      </Button>
-    )
-  }
-
-  // Success state - show popover with model list
-  if (mutation.isSuccess) {
-    const models = mutation.data ?? []
-
-    if (models.length === 0) {
-      return (
-        <Button
-          type="button"
-          variant="outline"
-          size="xs"
-          onClick={handleFetch}
-        >
-          <IconList />
-          {i18n.t("options.providers.form.models.noModels")}
-        </Button>
-      )
-    }
-
-    return (
-      <Combobox
-        items={models}
-        defaultOpen
-        onValueChange={(model: string | null) => {
-          if (model)
-            onSelect(model)
+        onClick={() => {
+          mutation.reset()
+          mutation.mutate()
         }}
+        disabled={!baseURL || mutation.isPending}
+        className={mutation.isError ? "text-red-500 hover:text-red-500" : undefined}
       >
-        <ComboboxPrimitive.Trigger render={<Button type="button" variant="outline" size="xs" />}>
-          <IconList />
-          {i18n.t("options.providers.form.models.selectModel")}
-        </ComboboxPrimitive.Trigger>
-        <ComboboxContent align="end" className="w-64">
-          <ComboboxInput showTrigger={false} placeholder={i18n.t("options.providers.form.models.searchModels")} />
-          <ComboboxList>
-            {(model: string) => (
-              <ComboboxItem key={model} value={model}>
-                {model}
-              </ComboboxItem>
-            )}
-          </ComboboxList>
-          <ComboboxEmpty>{i18n.t("options.providers.form.models.noModelsFound")}</ComboboxEmpty>
-        </ComboboxContent>
-      </Combobox>
-    )
-  }
-
-  return null
+        {mutation.isPending
+          ? <LoadingDots className="scale-75" />
+          : mutation.isError
+            ? <IconAlertCircle className="size-3.5" aria-hidden="true" />
+            : <IconListSearch className="size-3.5" aria-hidden="true" />}
+        {mutation.isError
+          ? i18n.t("options.providers.form.models.clickToRetry")
+          : i18n.t("options.providers.form.models.fetchModels")}
+      </Button>
+      {mutation.isSuccess && (models.length === 0
+        ? <span role="status" className="text-xs text-muted-foreground">{i18n.t("options.providers.form.models.noModels")}</span>
+        : (
+            <Combobox
+              items={models}
+              defaultOpen
+              onValueChange={(model: string | null) => {
+                if (model)
+                  onSelect(model)
+              }}
+            >
+              <ComboboxPrimitive.Trigger render={<Button type="button" variant="outline" size="xs" />}>
+                <IconList aria-hidden="true" />
+                {i18n.t("options.providers.form.models.selectModel")}
+              </ComboboxPrimitive.Trigger>
+              <ComboboxContent align="end" className="w-64">
+                <ComboboxInput showTrigger={false} aria-label={i18n.t("options.providers.form.models.searchModels")} placeholder={i18n.t("options.providers.form.models.searchModels")} />
+                <ComboboxList>
+                  {(model: string) => (
+                    <ComboboxItem key={model} value={model}>
+                      {model}
+                    </ComboboxItem>
+                  )}
+                </ComboboxList>
+                <ComboboxEmpty>{i18n.t("options.providers.form.models.noModelsFound")}</ComboboxEmpty>
+              </ComboboxContent>
+            </Combobox>
+          ))}
+    </div>
+  )
 }
