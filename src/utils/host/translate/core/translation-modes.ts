@@ -12,6 +12,7 @@ import { isBlockTransNode, isHTMLElement, isTextNode, isTransNode } from "../../
 import { unwrapDeepestOnlyHTMLChild } from "../../dom/find"
 import { getOwnerDocument } from "../../dom/node"
 import { extractTextContent } from "../../dom/traversal"
+import { isWordPrefixEmphasisElement, withoutWordPrefixEmphasis } from "../../word-prefix-emphasis"
 import { removeTranslatedWrapperWithRestore } from "../dom/translation-cleanup"
 import { insertTranslatedNodeIntoWrapper } from "../dom/translation-insertion"
 import { findPreviousTranslatedWrapperInside } from "../dom/translation-wrapper"
@@ -175,7 +176,7 @@ export async function translateNodeTranslationOnlyMode(
   const outerParentElement = outerTransNodes[0].parentElement
   const hasExistingWrapper = outerParentElement?.querySelector(`.${CONTENT_WRAPPER_CLASS}`)
   if (outerParentElement && !originalContentMap.has(outerParentElement) && !hasExistingWrapper) {
-    originalContentMap.set(outerParentElement, outerParentElement.innerHTML)
+    originalContentMap.set(outerParentElement, withoutWordPrefixEmphasis(outerParentElement).innerHTML)
   }
 
   let transNodes: TransNode[] = []
@@ -249,14 +250,14 @@ export async function translateNodeTranslationOnlyMode(
     // Only save originalContent when there's no existing translation wrapper
     const hasExistingWrapperInParent = parentNode.querySelector(`.${CONTENT_WRAPPER_CLASS}`)
     if (!originalContentMap.has(parentNode) && !hasExistingWrapperInParent) {
-      originalContentMap.set(parentNode, parentNode.innerHTML)
+      originalContentMap.set(parentNode, withoutWordPrefixEmphasis(parentNode).innerHTML)
     }
 
     const getStringFormatFromNode = (node: Element | Text) => {
-      if (isTextNode(node)) {
+      if (isTextNode(node) || isWordPrefixEmphasisElement(node)) {
         return node.textContent
       }
-      return node.outerHTML
+      return withoutWordPrefixEmphasis(node).outerHTML
     }
 
     const textContent = cleanTextContent(transNodes.map(getStringFormatFromNode).join(""))

@@ -107,6 +107,9 @@ options:
       title: Display
       bilingual: Bilingual
       translationOnly: Translation only
+    wordPrefixEmphasis:
+      title: Word-prefix emphasis
+      description: Makes the start of Latin words bold on all pages. This setting changes only the appearance. No study shows that it makes reading faster.
     style:
       title: Translation style
       custom: Custom CSS

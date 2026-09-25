@@ -12,6 +12,7 @@ import { validateTranslationConfigAndToast } from "@/utils/host/translate/transl
 import { translateTextForPageTitle } from "@/utils/host/translate/translate-variants"
 import { resetTranslationProgress } from "@/utils/host/translate/ui/translation-progress"
 import { getOrCreateWebPageContext } from "@/utils/host/translate/webpage-context"
+import { isWordPrefixEmphasisElement } from "@/utils/host/word-prefix-emphasis"
 import { logger } from "@/utils/logger"
 import { sendMessage } from "@/utils/message"
 
@@ -440,7 +441,8 @@ export class PageTranslationManager implements IPageTranslationManager {
     for (const rec of records) {
       if (rec.type === "childList") {
         rec.addedNodes.forEach((node) => {
-          if (isHTMLElement(node)) {
+          // Emphasis only rewraps text of a paragraph that is already observed.
+          if (isHTMLElement(node) && !isWordPrefixEmphasisElement(node)) {
             this.addWalkBlockedElements(node, config)
             void this.observeTopLevelParagraphs(node, config)
             this.observeIsolatedDescendantsMutations(node)

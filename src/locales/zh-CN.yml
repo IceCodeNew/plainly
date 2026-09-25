@@ -107,6 +107,9 @@ options:
       title: 显示方式
       bilingual: 双语对照
       translationOnly: 仅译文
+    wordPrefixEmphasis:
+      title: 词首强调
+      description: 在所有网页中加粗拉丁字母单词的开头。只改变显示效果，目前没有研究表明它能提高阅读速度。
     style:
       title: 译文样式
       custom: 自定义 CSS

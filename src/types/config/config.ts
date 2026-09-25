@@ -16,6 +16,9 @@ const languageSchema = z.object({
 export const configSchema = z.object({
   language: languageSchema,
   providersConfig: providersConfigSchema,
+  reading: z.object({
+    wordPrefixEmphasis: z.boolean().default(false),
+  }).default({ wordPrefixEmphasis: false }),
   translate: translateConfigSchema,
 }).superRefine((data, ctx) => {
   const providerIdsSet = new Set(data.providersConfig.map(p => p.id))

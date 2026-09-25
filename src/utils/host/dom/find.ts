@@ -1,6 +1,7 @@
 import { getLocalConfig } from "@/utils/config/storage"
 import { DEFAULT_CONFIG } from "@/utils/constants/config"
 import { CONTENT_WRAPPER_CLASS } from "@/utils/constants/dom-labels"
+import { isWordPrefixEmphasisElement } from "../word-prefix-emphasis"
 import { isDontWalkIntoAndDontTranslateAsChildElement, isHTMLElement, isShallowInlineHTMLElement, isTranslatedContentNode, isTranslatedWrapperNode } from "./filter"
 import { smashTruncationStyle } from "./style"
 
@@ -72,6 +73,11 @@ export async function unwrapDeepestOnlyHTMLChild(element: HTMLElement) {
 
     const onlyChildElement = effectiveChildren[0]
     if (!isHTMLElement(onlyChildElement))
+      break
+
+    // Presentation wrappers may be removed when the reader disables emphasis.
+    // Keep translation and its restoration snapshot anchored to the page element.
+    if (isWordPrefixEmphasisElement(onlyChildElement))
       break
 
     currentElement = onlyChildElement
