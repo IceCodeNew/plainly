@@ -1,11 +1,9 @@
-import type { Config } from "@/types/config/config"
 import { createDeepSeek } from "@ai-sdk/deepseek"
 import { createOpenAI } from "@ai-sdk/openai"
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible"
-import { storage } from "#imports"
 import { isCustomLLMProvider } from "@/types/config/provider"
 import { getLLMProvidersConfig, getProviderConfigById } from "../config/helpers"
-import { CONFIG_STORAGE_KEY } from "../constants/config"
+import { getLocalConfig } from "../config/storage"
 import { normalizeBaseURL } from "./base-url"
 import { getProviderHeadersWithOverride } from "./headers"
 import { resolveModelId } from "./model-id"
@@ -17,7 +15,8 @@ const CREATE_AI_MAPPER = {
 } as const
 
 async function getLanguageModelById(providerId: string) {
-  const config = await storage.getItem<Config>(`local:${CONFIG_STORAGE_KEY}`)
+  // Parse the stored config: storage can still hold fields from an older version.
+  const config = await getLocalConfig()
   if (!config) {
     throw new Error("Config not found")
   }

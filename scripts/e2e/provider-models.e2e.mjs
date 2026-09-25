@@ -368,3 +368,25 @@ it("user clears the model: Given a provider with a model, When the model field i
   await openProvider("DeepSeek")
   assert.equal(await modelValue(), savedModel)
 })
+
+it("user tests a connection with a config from an older version: Given the stored provider still uses the old model fields, When the connection is tested, Then the translation request succeeds", async () => {
+  // Given: storage that the background has not converted yet.
+  await browser("eval", `(async () => {
+    const { config } = await chrome.storage.local.get('config');
+    const provider = config.providersConfig.find(p => p.provider === 'deepseek');
+    provider.apiKey = 'test-key';
+    provider.baseURL = ${JSON.stringify(baseURL)};
+    provider.model = { model: 'deepseek-chat', isCustomModel: true, customModel: 'future-chat-model' };
+    await chrome.storage.local.set({ config });
+  })()`)
+  await reloadSettings()
+  await openProvider("DeepSeek")
+  assert.equal(await modelValue(), "future-chat-model")
+
+  // When
+  await clickButton(browser, "Test connection")
+
+  // Then
+  await browser("wait", "--fn", "!!document.querySelector('.tabler-icon-check, .tabler-icon-x')")
+  assert.equal((await browser("eval", "!!document.querySelector('.tabler-icon-check')")).result, true)
+})
