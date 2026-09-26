@@ -91,6 +91,7 @@ options:
       testConnection:
         button: 测试连接
         testing: 测试中…
+        thinkingFallback: '该服务不接受 "reasoningEffort": "none"（$1）。改用 "thinking": {"type": "disabled"} 后连接成功，Provider options 已改为使用它。'
       models:
         fetchModels: 获取可用模型
         fetchError: 获取模型失败
