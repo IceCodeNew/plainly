@@ -9,7 +9,8 @@ export const CONFIG_STORAGE_KEY = "config"
 
 export const THEME_STORAGE_KEY = "theme"
 export const DEFAULT_DETECTED_CODE = "eng" as const
-export const CONFIG_SCHEMA_VERSION = 1
+// Version 2 replaces the retired default models once (see RETIRED_DEFAULT_MODELS).
+export const CONFIG_SCHEMA_VERSION = 2
 
 export const DEFAULT_CONFIG: Config = {
   language: {
