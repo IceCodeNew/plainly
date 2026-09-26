@@ -29,6 +29,10 @@ export function ProviderOptionsRecommendationTrigger({
 }: ProviderOptionsRecommendationTriggerProps) {
   const [open, setOpen] = useState(false)
   const recommendation = getRecommendedProviderOptions(provider)
+  if (!recommendation) {
+    return null
+  }
+
   const isApplied = !!currentProviderOptions && dequal(currentProviderOptions, recommendation)
 
   const handleApply = () => {

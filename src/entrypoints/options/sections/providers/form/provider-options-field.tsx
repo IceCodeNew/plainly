@@ -40,7 +40,7 @@ export const ProviderOptionsField = withForm({
       return null
     }
 
-    const placeholderText = JSON.stringify(getRecommendedProviderOptions(providerConfig.provider), null, 2)
+    const placeholderText = JSON.stringify(getRecommendedProviderOptions(providerConfig.provider) ?? { field: "value" }, null, 2)
 
     return (
       <AutosavedJsonCodeEditorField

@@ -5,9 +5,12 @@ describe("provider options", () => {
   it.each([
     ["openai", { openai: { reasoningEffort: "none" } }],
     ["deepseek", { deepseek: { thinking: { type: "disabled" } } }],
-    ["openai-compatible", { "openai-compatible": { reasoningEffort: "none" } }],
   ] as const)("user translates with any %s model: Given no saved provider options, When a request is sent, Then thinking is turned off", (provider, expected) => {
     expect(getProviderOptionsWithOverride(provider)).toEqual(expected)
+  })
+
+  it("user translates with a custom provider: Given no saved provider options, When a request is sent, Then no provider options are sent", () => {
+    expect(getProviderOptionsWithOverride("openai-compatible")).toBeUndefined()
   })
 
   it("user turns thinking back on: Given saved provider options, When a request is sent, Then only the saved options are sent", () => {

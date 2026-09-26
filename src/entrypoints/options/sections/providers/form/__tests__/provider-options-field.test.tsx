@@ -173,7 +173,7 @@ describe("providerOptionsField", () => {
     )
   })
 
-  it("user adds a custom provider: Given any model name, When the provider options are empty, Then the placeholder turns off reasoning", () => {
+  it("user adds a custom provider: Given any model name, When the provider options are empty, Then the placeholder shows only the format", () => {
     render(
       <ProviderOptionsFieldHarness
         initialConfig={{
@@ -187,7 +187,7 @@ describe("providerOptionsField", () => {
 
     expect(screen.getByLabelText("provider-options-editor")).toHaveAttribute(
       "placeholder",
-      JSON.stringify({ reasoningEffort: "none" }, null, 2),
+      JSON.stringify({ field: "value" }, null, 2),
     )
   })
 
