@@ -1,7 +1,6 @@
 import type { PromptLanguage } from "@/types/config/translate"
 
 export const WEB_PAGE_PROMPT_TOKENS = ["targetLanguage", "input", "webTitle", "webDescription", "webContent", "webSummary"] as const
-export const TOKENS = WEB_PAGE_PROMPT_TOKENS
 
 /**
  * Separator used to distinguish multiple text segments in batch translation.
