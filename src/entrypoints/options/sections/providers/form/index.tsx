@@ -1,7 +1,8 @@
 import type { ProvidersConfig } from "@/types/config/provider"
 import { useStore } from "@tanstack/react-form"
+import { dequal } from "dequal"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { toast } from "sonner"
 import { i18n } from "#imports"
 import { isAPIProviderConfig, isLLMProvider, isTranslateProvider } from "@/types/config/provider"
@@ -31,11 +32,15 @@ export function ProviderForm({ providerId }: { providerId: string }) {
   const setExpandedId = useSetAtom(expandedProviderIdAtom)
   const setConfig = useSetAtom(writeConfigAtom)
   const config = useAtomValue(configAtom)
+  // The config the form last saved or loaded. When a save lands, the atom returns an equal copy.
+  // Resetting the form to that copy can drop a field that the user changed after that save.
+  const syncedConfigRef = useRef(providerConfig)
 
   const form = useAppForm({
     ...formOpts,
     defaultValues: providerConfig && isAPIProviderConfig(providerConfig) ? providerConfig : undefined,
     onSubmit: async ({ value }) => {
+      syncedConfigRef.current = value
       void setProviderConfig(value)
     },
   })
@@ -45,7 +50,8 @@ export function ProviderForm({ providerId }: { providerId: string }) {
   const isLLM = isLLMProvider(providerType)
 
   useEffect(() => {
-    if (providerConfig && isAPIProviderConfig(providerConfig)) {
+    if (providerConfig && isAPIProviderConfig(providerConfig) && !dequal(providerConfig, syncedConfigRef.current)) {
+      syncedConfigRef.current = providerConfig
       form.reset(providerConfig)
     }
   }, [providerConfig, form])
