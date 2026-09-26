@@ -60,7 +60,6 @@ async function translateTextUsingPageConfig(
     text: preparedText,
     langConfig: config.language,
     providerConfig,
-    enableAIContentAware: config.translate.enableAIContentAware,
     extraHashTags: options.extraHashTags,
     webPageContext: options.webPageContext,
   })

@@ -38,11 +38,9 @@ async function buildWebPageHashComponents(
   text: string,
   providerConfig: ProviderConfig,
   partialLangConfig: { sourceCode: LangCodeISO6393 | "auto", targetCode: LangCodeISO6393 },
-  enableAIContentAware: boolean,
   webPageContext?: WebPagePromptContext,
 ): Promise<string[]> {
   const preparedText = prepareTranslationText(text)
-  const normalizedWebPageContext = normalizeWebPagePromptContext(webPageContext)
   const hashComponents = [
     preparedText,
     JSON.stringify(providerConfig),
@@ -54,29 +52,13 @@ async function buildWebPageHashComponents(
     return hashComponents
   }
 
+  // The webpage context reaches the model only through the rendered prompts.
   const targetLangName = LANG_CODE_TO_EN_NAME[partialLangConfig.targetCode]
   const { systemPrompt, prompt } = await getTranslatePrompt(targetLangName, preparedText, {
     isBatch: true,
-    context: normalizedWebPageContext,
+    context: webPageContext,
   })
   hashComponents.push(systemPrompt, prompt)
-  hashComponents.push(enableAIContentAware ? "enableAIContentAware=true" : "enableAIContentAware=false")
-
-  if (enableAIContentAware && normalizedWebPageContext) {
-    if (normalizedWebPageContext.webTitle) {
-      hashComponents.push(`webTitle:${normalizedWebPageContext.webTitle}`)
-    }
-    if (normalizedWebPageContext.webDescription) {
-      hashComponents.push(`webDescription:${normalizedWebPageContext.webDescription}`)
-    }
-    if (normalizedWebPageContext.webContent) {
-      // Use a substring hash to avoid huge hash inputs while still differentiating contexts.
-      hashComponents.push(`webContent:${normalizedWebPageContext.webContent.slice(0, 1000)}`)
-    }
-    if (normalizedWebPageContext.webSummary) {
-      hashComponents.push(`webSummary:${normalizedWebPageContext.webSummary}`)
-    }
-  }
 
   return hashComponents
 }
@@ -85,7 +67,6 @@ export interface TranslateTextOptions {
   text: string
   langConfig: { sourceCode: LangCodeISO6393 | "auto", targetCode: LangCodeISO6393, level: LangLevel }
   providerConfig: ProviderConfig
-  enableAIContentAware?: boolean
   extraHashTags?: string[]
   webPageContext?: WebPagePromptContext
 }
@@ -99,7 +80,6 @@ export async function translateTextCore(options: TranslateTextOptions): Promise<
     text,
     langConfig,
     providerConfig,
-    enableAIContentAware = false,
     extraHashTags = [],
     webPageContext,
   } = options
@@ -115,7 +95,6 @@ export async function translateTextCore(options: TranslateTextOptions): Promise<
     preparedText,
     providerConfig,
     { sourceCode: langConfig.sourceCode, targetCode: langConfig.targetCode },
-    enableAIContentAware,
     normalizedWebPageContext,
   )
 
