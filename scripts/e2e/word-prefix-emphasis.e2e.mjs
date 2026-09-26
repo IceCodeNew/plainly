@@ -1,18 +1,19 @@
+/* global chrome -- page.evaluate() runs these callbacks in the extension page. */
 import assert from "node:assert/strict"
 import { Buffer } from "node:buffer"
 import { createServer } from "node:http"
-import process from "node:process"
 import { after, before, it } from "node:test"
-import { capture, createBrowser, extensionId } from "./browser.mjs"
+import { capture, launchBrowser, waitForText } from "./browser.mjs"
 
-const browser = createBrowser(`prefix-${process.pid}`)
 const SWITCH = "Word-prefix emphasis"
 const text = "Reading unfamiliar words takes practice. Keep the whole sentence in view."
 const translated = "Une lecture attentive préserve le sens."
 const requests = []
 // Tab switches start page language detection; count only translation requests.
 const translationRequests = () => requests.filter(body => !JSON.stringify(body.messages).includes("language detection assistant"))
-let optionsURL
+let context
+let article
+let options
 let pageURL
 
 const articlePage = `<!doctype html><html lang="en"><head><title>Reading preferences</title>
@@ -50,13 +51,15 @@ const server = createServer(async (request, response) => {
       response.writeHead(400).end()
       return
     }
+    // A batch request puts a "%%" line between its texts; answer each text in the same format.
+    const texts = body.messages.at(-1).content.split(/\n[ \t]*%%[ \t]*\n/).length
     response.setHeader("Content-Type", "application/json")
     response.end(JSON.stringify({
       id: "chatcmpl-reading-test",
       object: "chat.completion",
       created: 1,
       model: body.model,
-      choices: [{ index: 0, message: { role: "assistant", content: translated }, finish_reason: "stop" }],
+      choices: [{ index: 0, message: { role: "assistant", content: Array.from({ length: texts }).fill(translated).join("\n\n%%\n\n") }, finish_reason: "stop" }],
       usage: { prompt_tokens: 20, completion_tokens: 10, total_tokens: 30 },
     }))
     return
@@ -65,128 +68,129 @@ const server = createServer(async (request, response) => {
   response.end(request.url.startsWith("/landing") ? landingPage : articlePage)
 })
 
-async function evaluate(expression) {
-  return (await browser("eval", expression)).result
+/** Brings the tab to the front, which the extension handles like a user switching tabs. */
+async function show(page) {
+  await page.bringToFront()
+  return page
 }
 
-async function switchSelector() {
-  const labelId = await evaluate(`[...document.querySelectorAll('label')].find(label => label.textContent === ${JSON.stringify(SWITCH)}).id`)
-  return `[role=switch][aria-labelledby="${labelId}"]`
+async function switchLocator() {
+  await show(options)
+  return options.getByRole("switch", { name: SWITCH, exact: true })
 }
 
 /** Sets the emphasis switch in the settings tab, and clicks it only when its state differs. */
 async function setEmphasis(on) {
-  await browser("tab", "options")
-  const selector = await switchSelector()
-  if ((await browser("get", "attr", selector, "aria-checked")).value !== String(on))
-    await browser("click", selector)
-  await browser("wait", "--fn", `document.querySelector(${JSON.stringify(selector)})?.getAttribute('aria-checked') === '${on}'`)
+  const toggle = await switchLocator()
+  if (await toggle.getAttribute("aria-checked") !== String(on))
+    await toggle.click()
+  await options.getByRole("switch", { name: SWITCH, exact: true, checked: on }).waitFor()
 }
 
 async function setTranslationMode(mode) {
-  await browser("tab", "options")
-  await evaluate(`(async () => {
-    const { config } = await chrome.storage.local.get('config');
-    config.translate.mode = ${JSON.stringify(mode)};
-    await chrome.storage.local.set({ config });
-  })()`)
+  await show(options)
+  await options.evaluate(async (mode) => {
+    const { config } = await chrome.storage.local.get("config")
+    config.translate.mode = mode
+    await chrome.storage.local.set({ config })
+  }, mode)
 }
 
 before(async () => {
   await new Promise(resolve => server.listen(0, "127.0.0.1", resolve))
   pageURL = `http://127.0.0.1:${server.address().port}`
-  optionsURL = `chrome-extension://${await extensionId()}/options.html#reading`
-  await browser("open", "about:blank")
-  await browser("tab", "new", "--label", "article", pageURL)
-  await browser("set", "viewport", "1100", "850", "2")
-  await browser("tab", "new", "--label", "options", optionsURL)
-  await browser("wait", "--text", SWITCH)
+  let extensionId
+  ;({ context, page: article, extensionId } = await launchBrowser())
+  await article.setViewportSize({ width: 1100, height: 850 })
+  await article.goto(pageURL)
+  options = await context.newPage()
+  await options.goto(`chrome-extension://${extensionId}/options.html#reading`)
+  await waitForText(options, SWITCH)
   // Use a real local HTTP provider; the extension's transport, storage and translation run unchanged.
-  await evaluate(`(async () => {
-    const { config } = await chrome.storage.local.get('config');
-    const provider = config.providersConfig.find(p => p.provider === 'openai-compatible');
-    provider.baseURL = ${JSON.stringify(`${pageURL}/v1`)};
-    provider.apiKey = 'local-test-key';
-    provider.model = 'reading-test';
-    config.language = { ...config.language, sourceCode: 'eng', targetCode: 'fra' };
-    config.translate.providerId = provider.id;
-    config.translate.batchQueueConfig.maxItemsPerBatch = 1;
-    await chrome.storage.local.set({ config });
-  })()`)
+  await options.evaluate(async (baseURL) => {
+    const { config } = await chrome.storage.local.get("config")
+    const provider = config.providersConfig.find(p => p.provider === "openai-compatible")
+    provider.baseURL = baseURL
+    provider.apiKey = "local-test-key"
+    provider.model = "reading-test"
+    config.language = { ...config.language, sourceCode: "eng", targetCode: "fra" }
+    config.translate.providerId = provider.id
+    await chrome.storage.local.set({ config })
+  }, `${pageURL}/v1`)
 })
 
 after(async () => {
-  await browser("close")
+  await context.close()
   await new Promise(resolve => server.close(resolve))
 })
 
 it("user chooses word-prefix emphasis: Given normal text, When it is toggled in the settings, Then pages update, preserve content and restore without reload", async () => {
   // Given
-  await browser("tab", "article")
-  assert.equal(await evaluate("document.querySelectorAll('plainly-prefix').length"), 0)
-  await capture(browser, "prefix-off")
+  await show(article)
+  assert.equal(await article.locator("plainly-prefix").count(), 0)
+  await capture(article, "prefix-off")
 
   // When: keyboard access on the first toggle
-  await browser("tab", "options")
-  const selector = await switchSelector()
-  assert.equal((await browser("get", "attr", selector, "aria-checked")).value, "false")
-  await browser("focus", selector)
-  await browser("press", "Space")
-  await browser("tab", "article")
+  const toggle = await switchLocator()
+  assert.equal(await toggle.getAttribute("aria-checked"), "false")
+  await toggle.focus()
+  await options.keyboard.press("Space")
+  await show(article)
 
   // Then
-  await browser("wait", "--fn", "!!document.querySelector('#passage plainly-prefix')")
-  assert.equal(await evaluate("document.querySelector('#passage').textContent"), text)
-  assert.equal(await evaluate("document.querySelector('#passage plainly-prefix').textContent"), "Read")
-  assert.equal(await evaluate("getComputedStyle(document.querySelector('#passage plainly-prefix')).fontWeight"), "700")
-  assert.equal(await evaluate("document.querySelectorAll('#code plainly-prefix, #editor plainly-prefix').length"), 0)
-  await browser("click", "#link")
-  assert.equal(await evaluate("location.hash"), "#note")
-  await capture(browser, "prefix-on")
-  await evaluate("document.querySelector('#passage').textContent = 'Updated reading material.'")
-  await browser("wait", "--fn", "document.querySelector('#passage plainly-prefix')?.textContent === 'Upda'")
-  await browser("reload")
-  await browser("wait", "--fn", "!!document.querySelector('#passage plainly-prefix')")
+  await article.locator("#passage plainly-prefix").first().waitFor({ state: "attached" })
+  assert.equal(await article.locator("#passage").textContent(), text)
+  assert.equal(await article.locator("#passage plainly-prefix").first().textContent(), "Read")
+  assert.equal(await article.locator("#passage plainly-prefix").first().evaluate(element => getComputedStyle(element).fontWeight), "700")
+  assert.equal(await article.locator("#code plainly-prefix, #editor plainly-prefix").count(), 0)
+  await article.locator("#link").click()
+  assert.equal(await article.evaluate(() => location.hash), "#note")
+  await capture(article, "prefix-on")
+  await article.evaluate(() => document.querySelector("#passage").textContent = "Updated reading material.")
+  await article.waitForFunction(() => document.querySelector("#passage plainly-prefix")?.textContent === "Upda")
+  await article.reload()
+  await article.locator("#passage plainly-prefix").first().waitFor({ state: "attached" })
 
   // When disabled with the pointer, Then the original markup returns
   await setEmphasis(false)
-  await browser("tab", "article")
-  await browser("wait", "--fn", "document.querySelectorAll('plainly-prefix').length === 0")
-  assert.equal(await evaluate("document.querySelector('#passage').innerHTML"), text)
-  await evaluate("document.querySelector('#passage').textContent = 'Updates remain plain.'")
-  assert.equal(await evaluate("document.querySelector('#passage').children.length"), 0)
+  await show(article)
+  await article.locator("plainly-prefix").first().waitFor({ state: "detached" })
+  assert.equal(await article.locator("#passage").innerHTML(), text)
+  await article.evaluate(() => document.querySelector("#passage").textContent = "Updates remain plain.")
+  assert.equal(await article.evaluate(() => document.querySelector("#passage").children.length), 0)
 })
 
 it("user keeps the page layout: Given page CSS for every span and last child, When emphasis is enabled, Then lines, flex items and word spacing stay the same", async () => {
   // Given
-  await browser("tab", "article")
-  await browser("open", `${pageURL}/landing`)
-  const measure = `JSON.stringify(['#hero', '#top', '#foot'].map(selector => {
+  await show(article)
+  await article.goto(`${pageURL}/landing`)
+  const measure = () => ["#hero", "#top", "#foot"].map((selector) => {
     const element = document.querySelector(selector)
     const range = document.createRange()
     range.selectNodeContents(element)
     return { lines: new Set([...range.getClientRects()].map(rect => Math.round(rect.top))).size, height: Math.round(element.getBoundingClientRect().height), items: element.children.length }
-  }))`
-  const before = JSON.parse(await evaluate(measure))
+  })
+  const before = await article.evaluate(measure)
 
   // When
   await setEmphasis(true)
-  await browser("tab", "article")
-  await browser("wait", "--fn", "!!document.querySelector('#hero plainly-prefix') && !!document.querySelector('#foot plainly-prefix')")
-  await capture(browser, "prefix-landing")
+  await show(article)
+  await article.locator("#hero plainly-prefix").first().waitFor({ state: "attached" })
+  await article.locator("#foot plainly-prefix").first().waitFor({ state: "attached" })
+  await capture(article, "prefix-landing")
 
   // Then
-  const after = JSON.parse(await evaluate(measure))
+  const after = await article.evaluate(measure)
   assert.deepEqual(after.map(({ lines, items }) => ({ lines, items })), before.map(({ lines, items }) => ({ lines, items })))
   for (const [index, { height }] of after.entries())
     assert.ok(Math.abs(height - before[index].height) <= 1, `height of block ${index} changed from ${before[index].height} to ${height}`)
   // A text wrapper that is a flex item is blockified like the anonymous item it replaces; prefixes stay inline.
-  assert.deepEqual(JSON.parse(await evaluate("JSON.stringify([...new Set([...document.querySelectorAll('plainly-prefix')].map(element => getComputedStyle(element).display))])")), ["inline"])
-  assert.equal(await evaluate("document.querySelector('#foot').textContent"), "COMMUNITY FORKMAINTAINED BY PIGSTY")
+  assert.deepEqual(await article.evaluate(() => [...new Set([...document.querySelectorAll("plainly-prefix")].map(element => getComputedStyle(element).display))]), ["inline"])
+  assert.equal(await article.locator("#foot").textContent(), "COMMUNITY FORKMAINTAINED BY PIGSTY")
 
   await setEmphasis(false)
-  await browser("tab", "article")
-  await browser("wait", "--fn", "!document.querySelector('plainly-prefix')")
+  await show(article)
+  await article.locator("plainly-prefix").first().waitFor({ state: "detached" })
 })
 
 for (const mode of ["translationOnly", "bilingual"]) {
@@ -194,25 +198,25 @@ for (const mode of ["translationOnly", "bilingual"]) {
     // Given
     await setTranslationMode(mode)
     await setEmphasis(true)
-    await browser("tab", "article")
-    await browser("open", `${pageURL}/?mode=${mode}`)
-    await browser("wait", "--fn", "!!document.querySelector('#passage plainly-prefix')")
+    await show(article)
+    await article.goto(`${pageURL}/?mode=${mode}`)
+    await article.locator("#passage plainly-prefix").first().waitFor({ state: "attached" })
 
     // When
-    await browser("press", "Alt+e")
-    await browser("wait", "--fn", `document.querySelector('#passage .plainly-translated-content-wrapper')?.textContent.includes(${JSON.stringify(translated)})`)
-    await browser("wait", "--fn", "!!document.querySelector('#passage .plainly-translated-content-wrapper plainly-prefix')")
+    await article.keyboard.press("Alt+e")
+    await article.locator("#passage .plainly-translated-content-wrapper").filter({ hasText: translated }).waitFor({ state: "attached" })
+    await article.locator("#passage .plainly-translated-content-wrapper plainly-prefix").first().waitFor({ state: "attached" })
     assert.ok(translationRequests().length > 0)
     assert.ok(!JSON.stringify(requests).includes("plainly-prefix"))
     await setEmphasis(false)
-    await browser("tab", "article")
-    await browser("wait", "--fn", "!document.querySelector('plainly-prefix')")
-    await browser("press", "Alt+e")
+    await show(article)
+    await article.locator("plainly-prefix").first().waitFor({ state: "detached" })
+    await article.keyboard.press("Alt+e")
 
     // Then
-    await browser("wait", "--fn", "!document.querySelector('.plainly-translated-content-wrapper')")
-    assert.equal(await evaluate("document.querySelector('#passage').textContent"), text)
-    assert.equal(await evaluate("document.querySelectorAll('plainly-prefix-text, plainly-prefix').length"), 0)
+    await article.locator(".plainly-translated-content-wrapper").first().waitFor({ state: "detached" })
+    assert.equal(await article.locator("#passage").textContent(), text)
+    assert.equal(await article.locator("plainly-prefix-text, plainly-prefix").count(), 0)
   })
 }
 
@@ -220,27 +224,27 @@ it("user enables emphasis on a translated page: Given a bilingual translation, W
   // Given
   await setTranslationMode("bilingual")
   await setEmphasis(false)
-  await browser("tab", "article")
-  await browser("open", `${pageURL}/?translated-first`)
-  await browser("wait", "--text", "A quiet moment to read")
-  await browser("press", "Alt+e")
-  await browser("wait", "--fn", "['#passage', '#mixed', '#note'].every(selector => document.querySelector(selector + ' .plainly-translated-content-wrapper')?.textContent.trim())")
+  await show(article)
+  await article.goto(`${pageURL}/?translated-first`)
+  await waitForText(article, "A quiet moment to read")
+  await article.keyboard.press("Alt+e")
+  await article.waitForFunction(() => ["#passage", "#mixed", "#note"].every(selector => document.querySelector(`${selector} .plainly-translated-content-wrapper`)?.textContent.trim()))
   const requestCount = translationRequests().length
 
   // When
   await setEmphasis(true)
-  await browser("tab", "article")
-  await browser("wait", "--fn", "!!document.querySelector('#passage .plainly-translated-content-wrapper plainly-prefix')")
+  await show(article)
+  await article.locator("#passage .plainly-translated-content-wrapper plainly-prefix").first().waitFor({ state: "attached" })
   // No DOM signal proves that a request did not start, so allow one bounded window for it.
-  await browser("wait", "1500")
+  await article.waitForTimeout(1500)
 
   // Then
-  assert.equal(await evaluate("document.querySelectorAll('#passage .plainly-translated-content-wrapper').length"), 1)
+  assert.equal(await article.locator("#passage .plainly-translated-content-wrapper").count(), 1)
   assert.equal(translationRequests().length, requestCount)
   await setEmphasis(false)
-  await browser("tab", "article")
-  await browser("wait", "--fn", "!document.querySelector('plainly-prefix')")
-  await browser("press", "Alt+e")
-  await browser("wait", "--fn", "!document.querySelector('.plainly-translated-content-wrapper')")
-  assert.equal(await evaluate("document.querySelector('#passage').textContent"), text)
+  await show(article)
+  await article.locator("plainly-prefix").first().waitFor({ state: "detached" })
+  await article.keyboard.press("Alt+e")
+  await article.locator(".plainly-translated-content-wrapper").first().waitFor({ state: "detached" })
+  assert.equal(await article.locator("#passage").textContent(), text)
 })

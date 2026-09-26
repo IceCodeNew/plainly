@@ -73,10 +73,10 @@ tests. To run the same repository checks as CI, use
 If `git config --get core.hooksPath` shows `.husky/_`, run
 `git config --local --unset core.hooksPath` before `pnpm exec prek install`.
 
-`pnpm test:e2e` builds the extension and opens it in headless Chrome through
-[agent-browser](https://github.com/vercel-labs/agent-browser), a development
-dependency. Before the first run, run `pnpm exec agent-browser install` to
-download Chrome. On Linux, add `--with-deps` to also install the system
+`pnpm test:e2e` builds the extension and opens it in headless Chromium through
+[Playwright](https://playwright.dev/), a development dependency. Before the
+first run, run `pnpm exec playwright-core install --no-shell chromium` to
+download Chromium. On Linux, add `--with-deps` to also install the system
 libraries. CI runs the same tests.
 
 ## License

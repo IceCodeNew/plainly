@@ -17,8 +17,6 @@ patchedDependencies:
   "@webext-core/messaging@4.0.0": patches/@webext-core__messaging@4.0.0.patch
 # Keep dependency scripts disabled; native tools use their platform packages.
 allowBuilds:
-  # The npm package contains the native binaries; its postinstall only downloads missing ones.
-  agent-browser: false
   esbuild: false
   msw: false
   nx: false
