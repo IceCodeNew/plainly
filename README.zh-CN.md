@@ -45,7 +45,7 @@ Git hooks 由 [prek](https://github.com/j178/prek) 管理，配置在 [`prek.tom
 
 如果 `git config --get core.hooksPath` 输出 `.husky/_`，先运行 `git config --local --unset core.hooksPath`，再执行 `pnpm exec prek install`。
 
-`pnpm test:e2e` 会先构建扩展，再通过开发依赖 [agent-browser](https://github.com/vercel-labs/agent-browser) 在无头 Chrome 中打开它。首次运行前执行 `pnpm exec agent-browser install` 下载 Chrome；Linux 上加 `--with-deps` 同时安装系统库。CI 也会运行这些测试。
+`pnpm test:e2e` 会先构建扩展，再通过开发依赖 [Playwright](https://playwright.dev/) 在无头 Chromium 中打开它。首次运行前执行 `pnpm exec playwright-core install --no-shell chromium` 下载 Chromium；Linux 上加 `--with-deps` 同时安装系统库。CI 也会运行这些测试。
 
 ## 许可
 
