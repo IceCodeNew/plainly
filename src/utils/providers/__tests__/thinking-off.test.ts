@@ -21,8 +21,14 @@ const server = createServer(async (request, response) => {
   const chunks: Buffer[] = []
   for await (const chunk of request)
     chunks.push(chunk as Buffer)
-  const body = JSON.parse(Buffer.concat(chunks).toString()) as { model: string, messages: { content: string }[] }
+  const body = JSON.parse(Buffer.concat(chunks).toString()) as { model: string, messages: { content: string }[], reasoning_effort?: string }
   requests.push(body)
+  // Some OpenAI-compatible gateways in front of DeepSeek V4.1 Flash reject other values.
+  if (body.reasoning_effort !== undefined && !["low", "medium", "high", "xhigh", "max"].includes(body.reasoning_effort)) {
+    response.writeHead(400, { "Content-Type": "application/json" })
+    response.end(JSON.stringify({ error: { message: "Invalid option: expected one of \"low\"|\"medium\"|\"high\"|\"xhigh\"|\"max\"" } }))
+    return
+  }
   const isLanguageDetection = JSON.stringify(body.messages).includes("language detection")
   response.setHeader("Content-Type", "application/json")
   response.end(JSON.stringify({
@@ -51,10 +57,21 @@ function providerFor(provider: "deepseek" | "openai-compatible"): LLMProviderCon
   }
 }
 
-const THINKING_OFF = {
-  "deepseek": { thinking: { type: "disabled" } },
-  "openai-compatible": { reasoning_effort: "none" },
-} as const
+const DEFAULTS = [
+  {
+    provider: "deepseek",
+    outcome: "thinking is off",
+    check: (request: Record<string, unknown>) => expect(request).toMatchObject({ thinking: { type: "disabled" } }),
+  },
+  {
+    provider: "openai-compatible",
+    outcome: "no reasoning option is added",
+    check: (request: Record<string, unknown>) => {
+      expect(request).not.toHaveProperty("reasoning_effort")
+      expect(request).not.toHaveProperty("thinking")
+    },
+  },
+] as const
 
 beforeAll(async () => {
   await new Promise<void>(resolve => server.listen(0, "127.0.0.1", resolve))
@@ -77,26 +94,26 @@ afterAll(async () => {
   await new Promise(resolve => server.close(resolve))
 })
 
-describe.each(["deepseek", "openai-compatible"] as const)("thinking with the %s provider", (provider) => {
-  it("user translates a paragraph: Given no saved provider options, When the request is sent, Then thinking is off", async () => {
+describe.each(DEFAULTS)("reasoning options for the $provider provider", ({ provider, outcome, check }) => {
+  it(`user translates a paragraph: Given no saved provider options, When the request is sent, Then ${outcome}`, async () => {
     await aiTranslate("Hello", "cmn", providerFor(provider), async () => ({ systemPrompt: "", prompt: "Translate: Hello" }))
 
     expect(requests).toHaveLength(1)
-    expect(requests[0]).toMatchObject(THINKING_OFF[provider])
+    check(requests[0])
   })
 
-  it("user reads a page with page context: Given no saved provider options, When the summary is made, Then thinking is off", async () => {
+  it(`user reads a page with page context: Given no saved provider options, When the summary is made, Then ${outcome}`, async () => {
     await generateArticleSummary("Release notes", "The release adds a setting.", providerFor(provider))
 
     expect(requests).toHaveLength(1)
-    expect(requests[0]).toMatchObject(THINKING_OFF[provider])
+    check(requests[0])
   })
 
-  it("user opens a page in an unknown language: Given no saved provider options, When the language is detected, Then thinking is off", async () => {
+  it(`user opens a page in an unknown language: Given no saved provider options, When the language is detected, Then ${outcome}`, async () => {
     const result = await detectLanguageWithSource("This paragraph is long enough for language detection.", { providerConfig: providerFor(provider) })
 
     expect(result).toEqual({ code: "eng", source: "llm" })
-    expect(requests[0]).toMatchObject(THINKING_OFF[provider])
+    check(requests[0])
   })
 
   it("user turned thinking on in the provider options: Given saved options, When a paragraph is translated, Then only the saved options are sent", async () => {

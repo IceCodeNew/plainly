@@ -65,4 +65,17 @@ describe("providerOptionsRecommendationTrigger", () => {
       name: "options.providers.form.providerOptionsRecommendationApplied",
     })).toBeDisabled()
   })
+
+  it("user opens a custom provider: Given a third-party endpoint, When the model field is shown, Then no recommendation is offered", () => {
+    render(
+      <ProviderOptionsRecommendationTrigger
+        provider="openai-compatible"
+        onApply={vi.fn()}
+      />,
+    )
+
+    expect(screen.queryByRole("button", {
+      name: "options.providers.form.providerOptionsRecommendationTrigger",
+    })).not.toBeInTheDocument()
+  })
 })

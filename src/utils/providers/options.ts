@@ -40,18 +40,19 @@ function normalizeUserProviderOptions(
 
 /**
  * Provider options that turn off thinking. Translation needs fast answers,
- * so every model of a provider gets them. Saved provider options replace them.
+ * so every OpenAI and DeepSeek model gets them. Saved provider options replace
+ * them. Custom providers get none: their models and accepted values are
+ * unknown, so they send only their saved provider options.
  */
-const RECOMMENDED_PROVIDER_OPTIONS: Record<LLMProviderTypes, Record<string, JSONValue>> = {
-  "openai": { reasoningEffort: "none" } satisfies OpenAIResponsesProviderOptions,
-  "deepseek": { thinking: { type: "disabled" } } satisfies DeepSeekLanguageModelOptions as Record<string, JSONValue>,
-  "openai-compatible": { reasoningEffort: "none" },
+const RECOMMENDED_PROVIDER_OPTIONS: Partial<Record<LLMProviderTypes, Record<string, JSONValue>>> = {
+  openai: { reasoningEffort: "none" } satisfies OpenAIResponsesProviderOptions,
+  deepseek: { thinking: { type: "disabled" } } satisfies DeepSeekLanguageModelOptions as Record<string, JSONValue>,
 }
 
 /**
  * Get the recommended provider options payload without wrapping it by provider id.
  */
-export function getRecommendedProviderOptions(provider: LLMProviderTypes): Record<string, JSONValue> {
+export function getRecommendedProviderOptions(provider: LLMProviderTypes): Record<string, JSONValue> | undefined {
   return RECOMMENDED_PROVIDER_OPTIONS[provider]
 }
 
@@ -63,10 +64,9 @@ export function getRecommendedProviderOptions(provider: LLMProviderTypes): Recor
 export function getProviderOptionsWithOverride(
   provider: LLMProviderTypes,
   userOptions?: Record<string, JSONValue>,
-): Record<string, Record<string, JSONValue>> {
-  return {
-    [provider]: userOptions === undefined
-      ? getRecommendedProviderOptions(provider)
-      : normalizeUserProviderOptions(provider, userOptions),
-  }
+): Record<string, Record<string, JSONValue>> | undefined {
+  const options = userOptions === undefined
+    ? getRecommendedProviderOptions(provider)
+    : normalizeUserProviderOptions(provider, userOptions)
+  return options && { [provider]: options }
 }
