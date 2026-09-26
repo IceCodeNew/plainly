@@ -1,8 +1,11 @@
 import type { TranslatePromptObj } from "@/types/config/translate"
-import { useAtom } from "jotai"
+import type { DomainPromptId } from "@/utils/constants/prompt"
+import { useAtom, useAtomValue } from "jotai"
 import { useId } from "react"
 import { i18n } from "#imports"
-import { DEFAULT_TRANSLATE_PROMPT, DEFAULT_TRANSLATE_PROMPT_ID, DEFAULT_TRANSLATE_SYSTEM_PROMPT } from "@/utils/constants/prompt"
+import { configFieldsAtomMap } from "@/utils/atoms/config"
+import { DEFAULT_TRANSLATE_PROMPT_ID, DOMAIN_PROMPT_IDS, getTokenCellText, INPUT, isBuiltinPromptId, isDomainPromptId, renderBuiltinTranslatePrompt, TARGET_LANGUAGE, WEB_SUMMARY, WEB_TITLE } from "@/utils/constants/prompt"
+import { resolvePromptLanguage } from "@/utils/prompts/prompt-language"
 import { cn } from "@/utils/styles/utils"
 import { ConfigurePrompt } from "./configure-prompt"
 import { usePromptAtoms } from "./context"
@@ -10,22 +13,45 @@ import { DeletePrompt } from "./delete-prompt"
 import { ExportPrompts } from "./export-prompts"
 import { ImportPrompts } from "./import-prompts"
 
+const DOMAIN_PROMPT_LABEL_KEY = {
+  "builtin:legal": "options.quality.prompts.builtins.legal",
+  "builtin:medical": "options.quality.prompts.builtins.medical",
+  "builtin:finance": "options.quality.prompts.builtins.finance",
+  "builtin:technology": "options.quality.prompts.builtins.technology",
+} as const satisfies Record<DomainPromptId, string>
+
 /**
- * Prompts as a radio list: the default one first, then the reader's own.
- * The chosen prompt is what page translation sends to the model.
+ * Prompts as a radio list: the default one first, then the domain prompts,
+ * then the reader's own. The chosen prompt is what page translation sends to the model.
  */
 export function PromptList() {
   const promptAtoms = usePromptAtoms()
   const [config, setConfig] = useAtom(promptAtoms.config)
   const radioGroupId = useId()
 
-  const defaultPrompt: TranslatePromptObj = {
-    id: DEFAULT_TRANSLATE_PROMPT_ID,
-    name: i18n.t("options.quality.prompts.default"),
-    systemPrompt: DEFAULT_TRANSLATE_SYSTEM_PROMPT,
-    prompt: DEFAULT_TRANSLATE_PROMPT,
-  }
-  const prompts = [defaultPrompt, ...config.patterns]
+  const { promptLanguage: promptLanguageSetting } = useAtomValue(configFieldsAtomMap.translate)
+  const { targetCode } = useAtomValue(configFieldsAtomMap.language)
+  const promptLanguage = resolvePromptLanguage(promptLanguageSetting, targetCode)
+
+  // Built-in prompts are shown as the template the model receives for one paragraph.
+  const builtinPrompt = (id: string, name: string): TranslatePromptObj => ({
+    id,
+    name,
+    systemPrompt: "",
+    prompt: renderBuiltinTranslatePrompt({
+      promptLanguage,
+      targetLanguage: getTokenCellText(TARGET_LANGUAGE),
+      input: getTokenCellText(INPUT),
+      domainId: isDomainPromptId(id) ? id : undefined,
+      webTitle: getTokenCellText(WEB_TITLE),
+      webSummary: getTokenCellText(WEB_SUMMARY),
+    }),
+  })
+  const prompts = [
+    builtinPrompt(DEFAULT_TRANSLATE_PROMPT_ID, i18n.t("options.quality.prompts.default")),
+    ...DOMAIN_PROMPT_IDS.map(id => builtinPrompt(id, i18n.t(DOMAIN_PROMPT_LABEL_KEY[id]))),
+    ...config.patterns,
+  ]
 
   const select = (prompt: TranslatePromptObj) => {
     setConfig({
@@ -67,7 +93,7 @@ export function PromptList() {
                 {prompt.name}
               </label>
               <div className="flex shrink-0 items-center gap-3 text-xs">
-                {!isDefault && <DeletePrompt originPrompt={prompt} />}
+                {!isBuiltinPromptId(prompt.id) && <DeletePrompt originPrompt={prompt} />}
                 <ConfigurePrompt originPrompt={prompt} />
               </div>
             </div>

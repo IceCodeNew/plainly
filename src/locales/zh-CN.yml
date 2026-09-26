@@ -153,9 +153,20 @@ options:
     context:
       title: 结合全文上下文
       description: 先让模型读一遍页面摘要，再翻译各段。开始时会慢几秒，多用一些 token。
+    promptLanguage:
+      title: 提示词语言
+      description: 默认提示词和领域提示词使用的语言。选“自动”时，目标语言是中文就用中文提示词。自定义提示词不受影响。
+      auto: 自动
+      en: 英文
+      zh: 中文
     prompts:
       title: 提示词
       default: 默认
+      builtins:
+        legal: 法律
+        medical: 医学
+        finance: 金融
+        technology: 科技
       new: 新建
       view: 查看
       edit: 编辑

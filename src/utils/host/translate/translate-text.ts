@@ -4,7 +4,6 @@ import type { ProviderConfig } from "@/types/config/provider"
 import type { WebPagePromptContext } from "@/types/content"
 import { toast } from "sonner"
 import { i18n } from "#imports"
-import { LANG_CODE_TO_EN_NAME } from "@/definitions"
 import { isAPIProviderConfig, isLLMProviderConfig } from "@/types/config/provider"
 import { getProviderConfigById } from "@/utils/config/helpers"
 
@@ -53,8 +52,7 @@ async function buildWebPageHashComponents(
   }
 
   // The webpage context reaches the model only through the rendered prompts.
-  const targetLangName = LANG_CODE_TO_EN_NAME[partialLangConfig.targetCode]
-  const { systemPrompt, prompt } = await getTranslatePrompt(targetLangName, preparedText, {
+  const { systemPrompt, prompt } = await getTranslatePrompt(partialLangConfig.targetCode, preparedText, {
     isBatch: true,
     context: webPageContext,
   })

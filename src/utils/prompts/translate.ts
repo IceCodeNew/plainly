@@ -1,19 +1,23 @@
+import type { LangCodeISO6393 } from "@/definitions"
 import type { Config } from "@/types/config/config"
+import type { TranslatePromptObj } from "@/types/config/translate"
 import type { WebPagePromptContext } from "@/types/content"
+import { LANG_CODE_TO_EN_NAME } from "@/definitions"
 import { getLocalConfig } from "@/utils/config/storage"
 import { DEFAULT_CONFIG } from "../constants/config"
 import {
-  DEFAULT_BATCH_TRANSLATE_PROMPT,
-  DEFAULT_TRANSLATE_PROMPT,
-  DEFAULT_TRANSLATE_SYSTEM_PROMPT,
+  BATCH_TRANSLATE_RULES,
   getTokenCellText,
   INPUT,
+  isDomainPromptId,
+  renderBuiltinTranslatePrompt,
   TARGET_LANGUAGE,
   WEB_CONTENT,
   WEB_DESCRIPTION,
   WEB_SUMMARY,
   WEB_TITLE,
 } from "../constants/prompt"
+import { getTargetLanguageName, resolvePromptLanguage } from "./prompt-language"
 
 export interface TranslatePromptOptions<TContext = unknown> {
   isBatch?: boolean
@@ -30,36 +34,44 @@ export function resolvePromptReplacementValue(value: string | null | undefined, 
 }
 
 export function getTranslatePromptFromConfig(
-  translateConfig: Pick<Config["translate"], "customPromptsConfig">,
-  targetLang: string,
+  translateConfig: Pick<Config["translate"], "customPromptsConfig" | "promptLanguage">,
+  targetCode: LangCodeISO6393,
   input: string,
   options?: TranslatePromptOptions<WebPagePromptContext>,
 ): TranslatePromptResult {
-  const customPromptsConfig = translateConfig.customPromptsConfig
-  const { patterns = [], promptId } = customPromptsConfig
-
-  // Resolve system prompt and user prompt
-  let systemPrompt: string
-  let prompt: string
-
-  if (!promptId) {
-    // Use default prompts from constants
-    systemPrompt = DEFAULT_TRANSLATE_SYSTEM_PROMPT
-    prompt = DEFAULT_TRANSLATE_PROMPT
-  }
-  else {
-    // Find custom prompt, fallback to default
-    const customPrompt = patterns.find(pattern => pattern.id === promptId)
-    systemPrompt = customPrompt?.systemPrompt ?? DEFAULT_TRANSLATE_SYSTEM_PROMPT
-    prompt = customPrompt?.prompt ?? DEFAULT_TRANSLATE_PROMPT
+  const { patterns, promptId } = translateConfig.customPromptsConfig
+  const customPrompt = patterns.find(pattern => pattern.id === promptId)
+  if (customPrompt) {
+    return renderCustomPrompt(customPrompt, LANG_CODE_TO_EN_NAME[targetCode], input, options)
   }
 
-  // For batch mode, append batch rules to system prompt
-  if (options?.isBatch) {
-    systemPrompt = `${systemPrompt}
-
-${DEFAULT_BATCH_TRANSLATE_PROMPT}`
+  const promptLanguage = resolvePromptLanguage(translateConfig.promptLanguage, targetCode)
+  return {
+    systemPrompt: "",
+    prompt: renderBuiltinTranslatePrompt({
+      promptLanguage,
+      targetLanguage: getTargetLanguageName(targetCode, promptLanguage),
+      input,
+      domainId: isDomainPromptId(promptId) ? promptId : undefined,
+      webTitle: options?.context?.webTitle,
+      webSummary: options?.context?.webSummary,
+      isBatch: options?.isBatch,
+    }),
   }
+}
+
+/** Custom prompts always use English language names and English batch rules. */
+function renderCustomPrompt(
+  customPrompt: TranslatePromptObj,
+  targetLanguage: string,
+  input: string,
+  options?: TranslatePromptOptions<WebPagePromptContext>,
+): TranslatePromptResult {
+  const systemPrompt = options?.isBatch
+    ? `${customPrompt.systemPrompt}
+
+${BATCH_TRANSLATE_RULES}`
+    : customPrompt.systemPrompt
 
   // Build title and summary replacement values
   const title = resolvePromptReplacementValue(options?.context?.webTitle, "No title available")
@@ -70,7 +82,7 @@ ${DEFAULT_BATCH_TRANSLATE_PROMPT}`
   // Replace tokens in both prompts
   const replaceTokens = (text: string) =>
     text
-      .replaceAll(getTokenCellText(TARGET_LANGUAGE), targetLang)
+      .replaceAll(getTokenCellText(TARGET_LANGUAGE), targetLanguage)
       .replaceAll(getTokenCellText(INPUT), input)
       .replaceAll(getTokenCellText(WEB_TITLE), title)
       .replaceAll(getTokenCellText(WEB_DESCRIPTION), description)
@@ -79,15 +91,15 @@ ${DEFAULT_BATCH_TRANSLATE_PROMPT}`
 
   return {
     systemPrompt: replaceTokens(systemPrompt),
-    prompt: replaceTokens(prompt),
+    prompt: replaceTokens(customPrompt.prompt),
   }
 }
 
 export async function getTranslatePrompt(
-  targetLang: string,
+  targetCode: LangCodeISO6393,
   input: string,
   options?: TranslatePromptOptions<WebPagePromptContext>,
 ): Promise<TranslatePromptResult> {
   const config = await getLocalConfig() ?? DEFAULT_CONFIG
-  return getTranslatePromptFromConfig(config.translate, targetLang, input, options)
+  return getTranslatePromptFromConfig(config.translate, targetCode, input, options)
 }
