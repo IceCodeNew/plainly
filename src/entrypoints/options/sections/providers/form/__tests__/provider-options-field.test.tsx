@@ -48,7 +48,7 @@ const baseProviderConfig: APIProviderConfig = {
   name: "OpenAI",
   enabled: true,
   provider: "openai",
-  model: "gpt-5-mini",
+  model: "gpt-6-luna",
   providerOptions: undefined,
 }
 
@@ -147,16 +147,16 @@ describe("providerOptionsField", () => {
     expect(screen.getByLabelText("provider-options-editor")).toHaveValue("{\"reasoningEffort\":\"low\"}")
   })
 
-  it("shows the matched recommended provider options as the placeholder when the value is empty", () => {
+  it("shows the recommended provider options as the placeholder when the value is empty", () => {
     render(<ProviderOptionsFieldHarness initialConfig={baseProviderConfig} />)
 
     expect(screen.getByLabelText("provider-options-editor")).toHaveAttribute(
       "placeholder",
-      JSON.stringify({ reasoningEffort: "minimal" }, null, 2),
+      JSON.stringify({ reasoningEffort: "none" }, null, 2),
     )
   })
 
-  it("uses the current model recommendation for the placeholder", () => {
+  it("uses the recommendation of the provider type for the placeholder", () => {
     render(
       <ProviderOptionsFieldHarness
         initialConfig={{
@@ -173,21 +173,21 @@ describe("providerOptionsField", () => {
     )
   })
 
-  it("matches recommendations by model name even when the provider differs", () => {
+  it("user adds a custom provider: Given any model name, When the provider options are empty, Then the placeholder turns off reasoning", () => {
     render(
       <ProviderOptionsFieldHarness
         initialConfig={{
           ...baseProviderConfig,
           provider: "openai-compatible",
           baseURL: "https://api.example.com/v1",
-          model: "gpt-5-mini",
+          model: "qwen3-32b",
         }}
       />,
     )
 
     expect(screen.getByLabelText("provider-options-editor")).toHaveAttribute(
       "placeholder",
-      JSON.stringify({ reasoningEffort: "minimal" }, null, 2),
+      JSON.stringify({ reasoningEffort: "none" }, null, 2),
     )
   })
 

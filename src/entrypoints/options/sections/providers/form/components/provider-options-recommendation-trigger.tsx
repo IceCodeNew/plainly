@@ -1,7 +1,8 @@
 import type { JSONValue } from "ai"
+import type { LLMProviderTypes } from "@/types/config/provider"
 import { IconSparkles } from "@tabler/icons-react"
 import { dequal } from "dequal"
-import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react"
+import { useState } from "react"
 import { i18n } from "#imports"
 import { Button } from "@/components/ui/base-ui/button"
 import {
@@ -13,111 +14,25 @@ import {
   PopoverTrigger,
 } from "@/components/ui/base-ui/popover"
 import { JSONCodeEditor } from "@/components/ui/json-code-editor"
-import { getRecommendedProviderOptionsMatch } from "@/utils/providers/options"
-import { cn } from "@/utils/styles/utils"
+import { getRecommendedProviderOptions } from "@/utils/providers/options"
 
 interface ProviderOptionsRecommendationTriggerProps {
-  providerId: string
-  modelId?: string | null
+  provider: LLMProviderTypes
   currentProviderOptions?: Record<string, JSONValue>
   onApply: (options: Record<string, JSONValue>) => void
 }
 
-const FLASH_DURATION_MS = 1400
-
 export function ProviderOptionsRecommendationTrigger({
-  providerId,
-  modelId,
+  provider,
   currentProviderOptions,
   onApply,
 }: ProviderOptionsRecommendationTriggerProps) {
   const [open, setOpen] = useState(false)
-  const [isFlashing, setIsFlashing] = useState(false)
-  const hasMountedRef = useRef(false)
-  const previousProviderIdRef = useRef(providerId)
-  const previousMatchIndexRef = useRef<number | undefined>(undefined)
-
-  const closePopover = useEffectEvent(() => {
-    // eslint-disable-next-line react/set-state-in-effect
-    setOpen(false)
-  })
-
-  const startFlashing = useEffectEvent(() => {
-    // eslint-disable-next-line react/set-state-in-effect
-    setIsFlashing(true)
-  })
-
-  const stopFlashing = useEffectEvent(() => {
-    // eslint-disable-next-line react/set-state-in-effect
-    setIsFlashing(false)
-  })
-
-  const recommendation = useMemo(() => {
-    if (!modelId?.trim()) {
-      return undefined
-    }
-    return getRecommendedProviderOptionsMatch(modelId.trim())
-  }, [modelId])
-
-  const recommendationJson = useMemo(() => {
-    if (!recommendation) {
-      return ""
-    }
-    return JSON.stringify(recommendation.options, null, 2)
-  }, [recommendation])
-
-  const isApplied = useMemo(() => {
-    if (!recommendation || !currentProviderOptions) {
-      return false
-    }
-    return dequal(currentProviderOptions, recommendation.options)
-  }, [currentProviderOptions, recommendation])
-
-  useEffect(() => {
-    if (!recommendation) {
-      closePopover()
-    }
-  }, [recommendation])
-
-  useEffect(() => {
-    if (!hasMountedRef.current) {
-      hasMountedRef.current = true
-      previousProviderIdRef.current = providerId
-      previousMatchIndexRef.current = recommendation?.matchIndex
-      return
-    }
-
-    if (previousProviderIdRef.current !== providerId) {
-      previousProviderIdRef.current = providerId
-      previousMatchIndexRef.current = recommendation?.matchIndex
-      stopFlashing()
-      return
-    }
-
-    if (previousMatchIndexRef.current !== recommendation?.matchIndex) {
-      previousMatchIndexRef.current = recommendation?.matchIndex
-
-      if (recommendation) {
-        startFlashing()
-        const timeoutId = window.setTimeout(() => {
-          setIsFlashing(false)
-        }, FLASH_DURATION_MS)
-
-        return () => {
-          window.clearTimeout(timeoutId)
-        }
-      }
-
-      stopFlashing()
-    }
-  }, [providerId, recommendation])
-
-  if (!recommendation) {
-    return null
-  }
+  const recommendation = getRecommendedProviderOptions(provider)
+  const isApplied = !!currentProviderOptions && dequal(currentProviderOptions, recommendation)
 
   const handleApply = () => {
-    onApply(recommendation.options)
+    onApply(recommendation)
     setOpen(false)
   }
 
@@ -130,10 +45,7 @@ export function ProviderOptionsRecommendationTrigger({
             variant="ghost"
             size="icon-xs"
             aria-label={i18n.t("options.providers.form.providerOptionsRecommendationTrigger")}
-            className={cn(
-              "text-muted-foreground hover:text-foreground transition-colors duration-700 ease-in-out",
-              isFlashing && "text-primary",
-            )}
+            className="text-muted-foreground hover:text-foreground transition-colors"
           />
         )}
       >
@@ -145,7 +57,7 @@ export function ProviderOptionsRecommendationTrigger({
           <PopoverDescription>{i18n.t("options.providers.form.providerOptionsRecommendationDescription")}</PopoverDescription>
         </PopoverHeader>
         <JSONCodeEditor
-          value={recommendationJson}
+          value={JSON.stringify(recommendation, null, 2)}
           editable={false}
           height="132px"
         />

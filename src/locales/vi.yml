@@ -111,8 +111,8 @@ options:
       providerOptionsHint: Các tùy chọn dành riêng cho nhà cung cấp cho các tính năng API không chuẩn như chế độ suy nghĩ/lập luận. Xem tài liệu Vercel AI SDK hoặc tài liệu chính thức của nhà cung cấp để biết chi tiết cấu hình.
       providerOptionsDocsLink: Xem Tài liệu Nhà cung cấp
       providerOptionsRecommendationTrigger: Xem tùy chọn nhà cung cấp được đề xuất
-      providerOptionsRecommendationTitle: Đã phát hiện tùy chọn nhà cung cấp được đề xuất
-      providerOptionsRecommendationDescription: Hãy xem lại và tự áp dụng cấu hình được đề xuất.
+      providerOptionsRecommendationTitle: Tùy chọn nhà cung cấp được đề xuất
+      providerOptionsRecommendationDescription: Các tùy chọn này tắt chế độ suy nghĩ để dịch nhanh hơn. Hãy xem lại rồi áp dụng.
       providerOptionsRecommendationApply: Áp dụng
       providerOptionsRecommendationApplied: Đã áp dụng
       invalidJson: Định dạng JSON không hợp lệ

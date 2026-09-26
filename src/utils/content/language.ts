@@ -7,7 +7,6 @@ import { getLocalConfig } from "@/utils/config/storage"
 import { logger } from "@/utils/logger"
 import { sendMessage } from "@/utils/message"
 import { getLanguageDetectionSystemPrompt, parseDetectedLanguageCode } from "@/utils/prompts/language-detection"
-import { resolveModelId } from "@/utils/providers/model-id"
 import { getProviderOptionsWithOverride } from "@/utils/providers/options"
 import { cleanText } from "./utils"
 
@@ -125,9 +124,8 @@ export async function detectLanguageWithLLM(
   }
 
   try {
-    const { model: providerModel, provider, providerOptions: userProviderOptions, temperature } = config
-    const modelName = resolveModelId(providerModel)
-    const providerOptions = getProviderOptionsWithOverride(modelName ?? "", provider, userProviderOptions)
+    const { provider, providerOptions: userProviderOptions, temperature } = config
+    const providerOptions = getProviderOptionsWithOverride(provider, userProviderOptions)
     const payload: BackgroundGenerateTextPayload = {
       providerId: config.id,
       system: getLanguageDetectionSystemPrompt(),

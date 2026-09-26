@@ -1,11 +1,8 @@
+import type { DeepSeekLanguageModelOptions } from "@ai-sdk/deepseek"
+import type { OpenAIResponsesProviderOptions } from "@ai-sdk/openai"
 import type { JSONValue } from "ai"
+import type { LLMProviderTypes } from "@/types/config/provider"
 import { CUSTOM_LLM_PROVIDER_TYPES } from "@/types/config/provider"
-import { LLM_MODEL_OPTIONS } from "../constants/models"
-
-export interface RecommendedProviderOptionsMatch {
-  matchIndex: number
-  options: Record<string, JSONValue>
-}
 
 const OPENAI_COMPATIBLE_PROVIDER_TYPES = new Set<string>(CUSTOM_LLM_PROVIDER_TYPES)
 
@@ -42,57 +39,34 @@ function normalizeUserProviderOptions(
 }
 
 /**
- * Detect the recommended provider options for a given model.
- * First match wins - more specific patterns should be placed first in MODEL_OPTIONS.
+ * Provider options that turn off thinking. Translation needs fast answers,
+ * so every model of a provider gets them. Saved provider options replace them.
  */
-export function getRecommendedProviderOptionsMatch(model: string): RecommendedProviderOptionsMatch | undefined {
-  for (const [matchIndex, { pattern, options }] of LLM_MODEL_OPTIONS.entries()) {
-    if (pattern.test(model)) {
-      return { matchIndex, options }
-    }
-  }
+const RECOMMENDED_PROVIDER_OPTIONS: Record<LLMProviderTypes, Record<string, JSONValue>> = {
+  "openai": { reasoningEffort: "none" } satisfies OpenAIResponsesProviderOptions,
+  "deepseek": { thinking: { type: "disabled" } } satisfies DeepSeekLanguageModelOptions as Record<string, JSONValue>,
+  "openai-compatible": { reasoningEffort: "none" },
 }
 
 /**
  * Get the recommended provider options payload without wrapping it by provider id.
  */
-export function getRecommendedProviderOptions(model: string): Record<string, JSONValue> | undefined {
-  return getRecommendedProviderOptionsMatch(model)?.options
-}
-
-/**
- * Wrap a recommendation for the AI SDK request shape.
- */
-export function getProviderOptions(
-  model: string,
-  provider: string,
-): Record<string, Record<string, JSONValue>> {
-  const options = getRecommendedProviderOptions(model)
-  if (!options) {
-    return {}
-  }
-
-  return { [provider]: options }
+export function getRecommendedProviderOptions(provider: LLMProviderTypes): Record<string, JSONValue> {
+  return RECOMMENDED_PROVIDER_OPTIONS[provider]
 }
 
 /**
  * Get provider options for AI SDK calls.
  * - If the user has saved provider options (including `{}`), use them as-is.
- * - Otherwise fall back to the recommended defaults for the current model.
+ * - Otherwise use the recommended options of the provider.
  */
 export function getProviderOptionsWithOverride(
-  model: string,
-  provider: string,
+  provider: LLMProviderTypes,
   userOptions?: Record<string, JSONValue>,
-): Record<string, Record<string, JSONValue>> | undefined {
-  if (userOptions !== undefined) {
-    return { [provider]: normalizeUserProviderOptions(provider, userOptions) }
+): Record<string, Record<string, JSONValue>> {
+  return {
+    [provider]: userOptions === undefined
+      ? getRecommendedProviderOptions(provider)
+      : normalizeUserProviderOptions(provider, userOptions),
   }
-
-  const recommendedOptions = getRecommendedProviderOptions(model)
-  if (!recommendedOptions) {
-    return undefined
-  }
-
-  return { [provider]: recommendedOptions }
 }

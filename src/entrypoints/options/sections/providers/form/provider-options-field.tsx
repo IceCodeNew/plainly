@@ -4,7 +4,6 @@ import { useCallback } from "react"
 import { i18n } from "#imports"
 import { HelpTooltip } from "@/components/help-tooltip"
 import { isLLMProviderConfig } from "@/types/config/provider"
-import { resolveModelId } from "@/utils/providers/model-id"
 import { getRecommendedProviderOptions } from "@/utils/providers/options"
 import { AutosavedJsonCodeEditorField } from "./components/autosaved-json-code-editor-field"
 import { withForm } from "./form"
@@ -41,13 +40,7 @@ export const ProviderOptionsField = withForm({
       return null
     }
 
-    const modelId = resolveModelId(providerConfig.model)
-    const placeholderText = (() => {
-      const recommendedOptions = getRecommendedProviderOptions(modelId ?? "")
-      return recommendedOptions
-        ? JSON.stringify(recommendedOptions, null, 2)
-        : JSON.stringify({ field: "value" }, null, 2)
-    })()
+    const placeholderText = JSON.stringify(getRecommendedProviderOptions(providerConfig.provider), null, 2)
 
     return (
       <AutosavedJsonCodeEditorField
