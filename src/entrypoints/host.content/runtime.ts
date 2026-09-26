@@ -1,6 +1,7 @@
 import type { ContentScriptContext } from "#imports"
 import type { Config } from "@/types/config/config"
-import { storage } from "#imports"
+import { toast } from "sonner"
+import { i18n, storage } from "#imports"
 import { CONFIG_STORAGE_KEY, DEFAULT_CONFIG } from "@/utils/constants/config"
 import { detectPageLanguageLightweight } from "@/utils/content/page-language"
 import { ensurePresetStyles } from "@/utils/host/translate/ui/style-injector"
@@ -112,8 +113,16 @@ export async function bootstrapHostContent(ctx: ContentScriptContext, initialCon
       })
     : () => {}
 
+  // The background saved new provider options after the provider rejected the preset.
+  const cleanupThinkingFallbackListener = window === window.top
+    ? onMessage("notifyThinkingFallback", (msg) => {
+        toast.info(i18n.t("options.providers.form.testConnection.thinkingFallback", [msg.data.reason]), { duration: 15_000 })
+      })
+    : () => {}
+
   ctx.onInvalidated(() => {
     removeHostToast()
+    cleanupThinkingFallbackListener()
     cleanupUrlListener()
     cleanupTranslationShortcut()
     cleanupTranslationStateListener()
