@@ -1,7 +1,6 @@
 import type { PromptResolver } from "./api/ai"
 import type { Config } from "@/types/config/config"
 import type { ProviderConfig } from "@/types/config/provider"
-import { LANG_CODE_TO_EN_NAME } from "@/definitions"
 import { isLLMProviderConfig } from "@/types/config/provider"
 import { aiTranslate } from "./api/ai"
 import { prepareTranslationText } from "./text-preparation"
@@ -26,8 +25,7 @@ export async function executeTranslate<TContext>(
   let translatedText = ""
 
   if (isLLMProviderConfig(providerConfig)) {
-    const targetLangName = LANG_CODE_TO_EN_NAME[langConfig.targetCode]
-    translatedText = await aiTranslate(preparedText, targetLangName, providerConfig, promptResolver, options)
+    translatedText = await aiTranslate(preparedText, langConfig.targetCode, providerConfig, promptResolver, options)
   }
   else {
     throw new Error(`Unknown provider: ${provider}`)

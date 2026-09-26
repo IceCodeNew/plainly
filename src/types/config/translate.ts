@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { isDomainPromptId } from "@/utils/constants/prompt"
 import { MAX_PRELOAD_MARGIN, MAX_PRELOAD_THRESHOLD, MIN_BATCH_CHARACTERS, MIN_BATCH_ITEMS, MIN_CHARACTERS_PER_NODE, MIN_PRELOAD_MARGIN, MIN_PRELOAD_THRESHOLD, MIN_TRANSLATE_CAPACITY, MIN_TRANSLATE_RATE, MIN_WORDS_PER_NODE } from "@/utils/constants/translate"
 import { TRANSLATION_NODE_STYLE } from "@/utils/constants/translation-node-style"
 import { isPageTranslationShortcutEmpty, isValidConfiguredPageTranslationShortcut } from "@/utils/page-translation-shortcut"
@@ -50,6 +51,11 @@ export const translatePromptObjSchema = z.object({
 })
 export type TranslatePromptObj = z.infer<typeof translatePromptObjSchema>
 
+export const PROMPT_LANGUAGE_SETTINGS = ["auto", "en", "zh"] as const
+export const promptLanguageSettingSchema = z.enum(PROMPT_LANGUAGE_SETTINGS)
+export type PromptLanguageSetting = z.infer<typeof promptLanguageSettingSchema>
+export type PromptLanguage = Exclude<PromptLanguageSetting, "auto">
+
 export const customPromptsConfigSchema = z.object({
   promptId: z.string().nullable(),
   patterns: z.array(
@@ -58,11 +64,11 @@ export const customPromptsConfigSchema = z.object({
 }).superRefine((data, ctx) => {
   if (data.promptId !== null) {
     const patternIds = data.patterns.map(p => p.id)
-    if (!patternIds.includes(data.promptId)) {
+    if (!patternIds.includes(data.promptId) && !isDomainPromptId(data.promptId)) {
       ctx.addIssue({
         code: "invalid_value",
         values: patternIds,
-        message: `promptId "${data.promptId}" must be null or match a pattern id`,
+        message: `promptId "${data.promptId}" must be null, a built-in domain prompt id, or match a pattern id`,
         path: ["promptId"],
       })
     }
@@ -94,6 +100,7 @@ export const translateConfigSchema = z.object({
   }),
   enableAIContentAware: z.boolean(),
   customPromptsConfig: customPromptsConfigSchema,
+  promptLanguage: promptLanguageSettingSchema.default("auto"),
   requestQueueConfig: requestQueueConfigSchema,
   batchQueueConfig: batchQueueConfigSchema,
   translationNodeStyle: translationNodeStyleConfigSchema,

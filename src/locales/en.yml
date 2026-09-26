@@ -153,9 +153,20 @@ options:
     context:
       title: Use page context
       description: Lets the model read a summary of the page before translating each paragraph. Starting takes a few seconds longer and uses more tokens.
+    promptLanguage:
+      title: Prompt language
+      description: The language of the default and domain prompts. "Auto" uses Chinese prompts when the target language is Chinese. Your own prompts do not change.
+      auto: Auto
+      en: English
+      zh: Chinese
     prompts:
       title: Prompt
       default: Default
+      builtins:
+        legal: Legal
+        medical: Medical
+        finance: Finance
+        technology: Technology
       new: New
       view: View
       edit: Edit

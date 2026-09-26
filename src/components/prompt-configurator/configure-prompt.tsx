@@ -15,7 +15,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/base-ui/sheet"
 import { QuickInsertableTextarea } from "@/components/ui/insertable-textarea"
-import { DEFAULT_TRANSLATE_PROMPT_ID } from "@/utils/constants/prompt"
+import { isBuiltinPromptId } from "@/utils/constants/prompt"
 import { getRandomUUID } from "@/utils/crypto-polyfill"
 import { usePromptAtoms, usePromptInsertCells } from "./context"
 
@@ -23,7 +23,7 @@ const TEXT_TRIGGER_CLASS = "cursor-pointer text-muted-foreground hover:text-fore
 
 /**
  * Sheet that creates or edits one prompt. With no `originPrompt` it creates;
- * the default prompt opens read-only.
+ * built-in prompts open read-only.
  */
 export function ConfigurePrompt({ originPrompt }: { originPrompt?: TranslatePromptObj }) {
   const promptAtoms = usePromptAtoms()
@@ -31,18 +31,18 @@ export function ConfigurePrompt({ originPrompt }: { originPrompt?: TranslateProm
   const [config, setConfig] = useAtom(promptAtoms.config)
 
   const inEdit = !!originPrompt
-  const isDefault = originPrompt?.id === DEFAULT_TRANSLATE_PROMPT_ID
+  const isBuiltin = !!originPrompt && isBuiltinPromptId(originPrompt.id)
 
   const createDraft = (): TranslatePromptObj => originPrompt ?? { id: getRandomUUID(), name: "", systemPrompt: "", prompt: "" }
   const [prompt, setPrompt] = useState<TranslatePromptObj>(createDraft)
 
-  const sheetTitle = isDefault
-    ? i18n.t("options.quality.prompts.default")
+  const sheetTitle = isBuiltin
+    ? originPrompt.name
     : inEdit
       ? i18n.t("options.quality.prompts.editor.editTitle")
       : i18n.t("options.quality.prompts.editor.newTitle")
 
-  const triggerLabel = isDefault
+  const triggerLabel = isBuiltin
     ? i18n.t("options.quality.prompts.view")
     : inEdit
       ? i18n.t("options.quality.prompts.edit")
@@ -83,7 +83,7 @@ export function ConfigurePrompt({ originPrompt }: { originPrompt?: TranslateProm
             <Input
               id="prompt-name"
               value={prompt.name}
-              disabled={isDefault}
+              disabled={isBuiltin}
               onChange={event => setPrompt({ ...prompt, name: event.target.value })}
             />
           </Field>
@@ -92,7 +92,7 @@ export function ConfigurePrompt({ originPrompt }: { originPrompt?: TranslateProm
             <QuickInsertableTextarea
               value={prompt.systemPrompt}
               className="min-h-40 max-h-80"
-              disabled={isDefault}
+              disabled={isBuiltin}
               onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setPrompt({ ...prompt, systemPrompt: event.target.value })}
               insertCells={insertCells}
             />
@@ -102,13 +102,13 @@ export function ConfigurePrompt({ originPrompt }: { originPrompt?: TranslateProm
             <QuickInsertableTextarea
               value={prompt.prompt}
               className="max-h-60"
-              disabled={isDefault}
+              disabled={isBuiltin}
               onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setPrompt({ ...prompt, prompt: event.target.value })}
               insertCells={insertCells}
             />
           </Field>
         </FieldGroup>
-        {!isDefault && (
+        {!isBuiltin && (
           <SheetFooter>
             <SheetClose render={<Button onClick={save} disabled={!prompt.name.trim()} />}>
               {i18n.t("options.quality.prompts.editor.save")}

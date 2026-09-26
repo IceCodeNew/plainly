@@ -1,3 +1,4 @@
+import type { LangCodeISO6393 } from "@/definitions"
 import type { LLMProviderConfig } from "@/types/config/provider"
 import type { TranslatePromptOptions, TranslatePromptResult } from "@/utils/prompts/translate"
 import { generateText } from "ai"
@@ -9,14 +10,14 @@ import { attachRequestErrorMeta, getRequestErrorMeta } from "@/utils/request/ret
 const THINK_TAG_RE = /<\/think>([\s\S]*)/
 
 export type PromptResolver<TContext = unknown> = (
-  targetLang: string,
+  targetCode: LangCodeISO6393,
   input: string,
   options?: TranslatePromptOptions<TContext>,
 ) => Promise<TranslatePromptResult>
 
 export async function aiTranslate<TContext>(
   text: string,
-  targetLangName: string,
+  targetCode: LangCodeISO6393,
   providerConfig: LLMProviderConfig,
   promptResolver: PromptResolver<TContext>,
   options?: { isBatch?: boolean, context?: TContext },
@@ -25,12 +26,13 @@ export async function aiTranslate<TContext>(
   const model = await getModelById(providerId)
 
   const providerOptions = getProviderOptionsWithOverride(provider, userProviderOptions)
-  const { systemPrompt, prompt } = await promptResolver(targetLangName, text, options)
+  const { systemPrompt, prompt } = await promptResolver(targetCode, text, options)
 
   try {
     const { text: translatedText } = await generateText({
       model,
-      system: systemPrompt,
+      // Built-in prompts have no system prompt. Some providers reject an empty one.
+      system: systemPrompt || undefined,
       prompt,
       temperature,
       providerOptions,
