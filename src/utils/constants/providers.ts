@@ -4,8 +4,8 @@ import { pick } from "@/types/utils"
 
 export const DEFAULT_LLM_PROVIDER_MODELS = {
   "openai-compatible": "",
-  "openai": "gpt-5-mini",
-  "deepseek": "deepseek-v4-flash",
+  "openai": "gpt-6-luna",
+  "deepseek": "deepseek-flash",
 } as const satisfies Record<LLMProviderTypes, LLMProviderConfig["model"]>
 
 export interface ProviderItem {

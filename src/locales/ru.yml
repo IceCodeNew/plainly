@@ -111,8 +111,8 @@ options:
       providerOptionsHint: Специфические параметры провайдера для нестандартных функций API, таких как режим размышления/рассуждения. Подробнее см. документацию Vercel AI SDK или официальную документацию вашего провайдера.
       providerOptionsDocsLink: Документация провайдера
       providerOptionsRecommendationTrigger: Показать рекомендуемые параметры провайдера
-      providerOptionsRecommendationTitle: Обнаружены рекомендуемые параметры провайдера
-      providerOptionsRecommendationDescription: Проверьте рекомендованную конфигурацию и примените её вручную.
+      providerOptionsRecommendationTitle: Рекомендуемые параметры провайдера
+      providerOptionsRecommendationDescription: Эти параметры отключают режим рассуждений, чтобы перевод был быстрее. Проверьте их и примените.
       providerOptionsRecommendationApply: Применить
       providerOptionsRecommendationApplied: Применено
       invalidJson: Неверный формат JSON

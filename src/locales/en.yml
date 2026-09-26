@@ -83,8 +83,8 @@ options:
       providerOptionsHint: Provider-specific options for non-standard API features like thinking/reasoning mode. See the Vercel AI SDK docs or your provider's documentation.
       providerOptionsDocsLink: View provider docs
       providerOptionsRecommendationTrigger: View recommended provider options
-      providerOptionsRecommendationTitle: Recommended provider options detected
-      providerOptionsRecommendationDescription: Review and apply the recommended configuration.
+      providerOptionsRecommendationTitle: Recommended provider options
+      providerOptionsRecommendationDescription: These options turn off thinking, so translation is faster. Review them, then apply.
       providerOptionsRecommendationApply: Apply
       providerOptionsRecommendationApplied: Applied
       invalidJson: Invalid JSON

@@ -348,7 +348,7 @@ it("user stages recommendations in an invalid form: Given a duplicate provider n
 
   // When
   await clickButton(page, "View recommended provider options")
-  await waitForText(page, "Recommended provider options detected")
+  await waitForText(page, "These options turn off thinking")
   await clickButton(page, "Apply")
   assert.equal(await page.locator("#name").inputValue(), "DeepSeek")
   await waitForText(page, "Another service is already named")
@@ -362,7 +362,7 @@ it("user stages recommendations in an invalid form: Given a duplicate provider n
   await openProvider("OpenAI Saved")
   await clickButton(page, "View recommended provider options")
   await waitForText(page, "Applied")
-  assert.match(await page.getByRole("dialog").textContent(), /minimal/)
+  assert.match(await page.getByRole("dialog").textContent(), /"reasoningEffort": "none"/)
 })
 
 for (const providerName of ["DeepSeek", "Custom Provider"]) {

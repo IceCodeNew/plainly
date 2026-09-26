@@ -111,8 +111,8 @@ options:
       providerOptionsHint: 思考/推論モードなどの非標準API機能のためのプロバイダー固有オプション。詳細はVercel AI SDKドキュメントまたはプロバイダーの公式ドキュメントをご覧ください。
       providerOptionsDocsLink: プロバイダードキュメントを見る
       providerOptionsRecommendationTrigger: 推奨プロバイダーオプションを表示
-      providerOptionsRecommendationTitle: 推奨プロバイダーオプションが見つかりました
-      providerOptionsRecommendationDescription: 推奨設定を確認し、手動で適用してください。
+      providerOptionsRecommendationTitle: 推奨プロバイダーオプション
+      providerOptionsRecommendationDescription: これらのオプションは思考モードをオフにし、翻訳を速くします。確認してから適用してください。
       providerOptionsRecommendationApply: 適用
       providerOptionsRecommendationApplied: 適用済み
       invalidJson: 無効なJSON形式

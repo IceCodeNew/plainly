@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
-import { act, fireEvent, render, screen } from "@testing-library/react"
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+import { fireEvent, render, screen } from "@testing-library/react"
+import { describe, expect, it, vi } from "vitest"
 import { ProviderOptionsRecommendationTrigger } from "../provider-options-recommendation-trigger"
 
 vi.mock("#imports", () => ({
@@ -24,81 +24,12 @@ vi.mock("@/components/ui/json-code-editor", () => ({
 }))
 
 describe("providerOptionsRecommendationTrigger", () => {
-  beforeEach(() => {
-    vi.useFakeTimers()
-  })
-
-  afterEach(() => {
-    vi.runOnlyPendingTimers()
-    vi.useRealTimers()
-  })
-
-  it("does not render a trigger when the current model has no recommendation", () => {
-    render(
-      <ProviderOptionsRecommendationTrigger
-        providerId="provider-1"
-        modelId="plain-model"
-        onApply={vi.fn()}
-      />,
-    )
-
-    expect(screen.queryByRole("button", {
-      name: "options.providers.form.providerOptionsRecommendationTrigger",
-    })).not.toBeInTheDocument()
-  })
-
-  it("does not render a trigger for GPT-5 chat-latest models", () => {
-    render(
-      <ProviderOptionsRecommendationTrigger
-        providerId="provider-1"
-        modelId="gpt-5.3-chat-latest"
-        onApply={vi.fn()}
-      />,
-    )
-
-    expect(screen.queryByRole("button", {
-      name: "options.providers.form.providerOptionsRecommendationTrigger",
-    })).not.toBeInTheDocument()
-  })
-
-  it("flashes once when the model starts matching a new recommendation rule", () => {
-    const { rerender } = render(
-      <ProviderOptionsRecommendationTrigger
-        providerId="provider-1"
-        modelId="gpt-5-mini"
-        onApply={vi.fn()}
-      />,
-    )
-
-    const trigger = screen.getByRole("button", {
-      name: "options.providers.form.providerOptionsRecommendationTrigger",
-    })
-    expect(trigger.className).not.toContain("text-primary")
-
-    rerender(
-      <ProviderOptionsRecommendationTrigger
-        providerId="provider-1"
-        modelId="gpt-5.4-mini"
-        onApply={vi.fn()}
-      />,
-    )
-
-    expect(trigger.className).toContain("text-primary")
-
-    act(() => {
-      vi.advanceTimersByTime(1400)
-    })
-
-    expect(trigger.className).not.toContain("text-primary")
-  })
-
-  it("shows the recommendation preview and applies it on demand", () => {
+  it("user opens the recommendation for a DeepSeek provider: Given no saved options, When they apply it, Then the options that turn off thinking are saved", () => {
     const onApply = vi.fn()
 
     render(
       <ProviderOptionsRecommendationTrigger
-        providerId="provider-1"
-        modelId="gpt-5.4-mini"
+        provider="deepseek"
         onApply={onApply}
       />,
     )
@@ -108,26 +39,30 @@ describe("providerOptionsRecommendationTrigger", () => {
     }))
 
     expect(screen.getByText("options.providers.form.providerOptionsRecommendationTitle")).toBeInTheDocument()
-    expect(screen.getByTestId("provider-options-preview")).toHaveTextContent("\"reasoningEffort\": \"none\"")
+    expect(screen.getByTestId("provider-options-preview")).toHaveTextContent("\"type\": \"disabled\"")
 
     fireEvent.click(screen.getByRole("button", {
       name: "options.providers.form.providerOptionsRecommendationApply",
     }))
 
-    expect(onApply).toHaveBeenCalledWith({ reasoningEffort: "none" })
+    expect(onApply).toHaveBeenCalledWith({ thinking: { type: "disabled" } })
   })
 
-  it("does not render when no recommendation matches the model name", () => {
+  it("user already saved the recommendation: Given the same options, When they open it, Then the apply button is disabled", () => {
     render(
       <ProviderOptionsRecommendationTrigger
-        providerId="provider-1"
-        modelId="plain-model"
+        provider="openai"
+        currentProviderOptions={{ reasoningEffort: "none" }}
         onApply={vi.fn()}
       />,
     )
 
-    expect(screen.queryByRole("button", {
+    fireEvent.click(screen.getByRole("button", {
       name: "options.providers.form.providerOptionsRecommendationTrigger",
-    })).not.toBeInTheDocument()
+    }))
+
+    expect(screen.getByRole("button", {
+      name: "options.providers.form.providerOptionsRecommendationApplied",
+    })).toBeDisabled()
   })
 })
